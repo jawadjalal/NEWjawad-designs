@@ -872,11 +872,13 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     else if (k === 'End') { e.preventDefault(); gotoPanel(SECTIONS.length - 1); }
   });
 
-  // minimap node click -> glide to section
-  on(minimap, 'click', (e: MouseEvent) => {
-    const d = (e.target as HTMLElement).closest('.e-nav-node,.e-nav-hit') as HTMLElement | null; if (!d || introActive) return;
-    cancelSnap(); glideTo(+d.dataset.i!);
-  });
+  // minimap removed from the Next shell — bottom nav is the single path UI
+  if (minimap) {
+    on(minimap, 'click', (e: MouseEvent) => {
+      const d = (e.target as HTMLElement).closest('.e-nav-node,.e-nav-hit') as HTMLElement | null; if (!d || introActive) return;
+      cancelSnap(); glideTo(+d.dataset.i!);
+    });
+  }
 
   /* ---------- open / close nested canvases ---------- */
   on(world, 'click', (e: MouseEvent) => {

@@ -2,7 +2,7 @@
 
 /**
  * The homepage spatial canvas (Direction E). This component renders only the
- * static shell (stage / viewport / world / minimap / detail overlay); the
+ * static shell (stage / viewport / world / detail overlay); the
  * camera engine — panels, loader, inertia scroll, settle, nested canvases — is
  * mounted imperatively by createHomeCamera() inside useGSAP (DOM-measuring +
  * GSAP-driven, so it must be client-side and run after layout).
@@ -48,9 +48,6 @@ export default function HomeCamera() {
               </div>
             </div>
           </div>
-        </div>
-        <div className="e-minimap v-spine">
-          <div className="e-nav-map" />
         </div>
         <div className="e-hint">‹ left-click · back &nbsp;·&nbsp; right-click · forward ›</div>
         <div className="e-detail">

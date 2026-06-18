@@ -146,14 +146,16 @@ export default function PathProgress({ containerRef }: { containerRef: RefObject
       links.forEach((a, i) => a.classList.toggle('on', i === idx));
       if (tri) {
         let p: { x: number; y: number } | null = null;
-        if (base && progLen > 0) {
+        // Snap to the active node so the red triangle replaces the dot (not beside it).
+        if (idx >= 0 && navNodes[idx]) {
+          p = navNodes[idx];
+        } else if (base && progLen > 0) {
           try {
             p = base.getPointAtLength(Math.max(0, Math.min(progLen, navTotal)));
           } catch {
             /* not laid out */
           }
         }
-        if (!p && idx >= 0 && navNodes[idx]) p = navNodes[idx];
         if ((idx >= 0 || progLen > 0) && p) {
           const s = 5.4;
           tri.setAttribute(
@@ -171,12 +173,10 @@ export default function PathProgress({ containerRef }: { containerRef: RefObject
         // discrete page nav → snap fill to the node
         apply(navLens[ai], ai, instant);
       } else {
-        // home → continuous fill from scroll fraction
-        const { scrollFrac } = useStore.getState();
+        // home → continuous fill; idx comes from the camera (store.sectionIndex)
+        const { scrollFrac, sectionIndex } = useStore.getState();
         const progLen = scrollFrac * navTotal;
-        let passed = 0;
-        for (let i = 0; i < navLens.length; i++) if (navLens[i] <= progLen + 0.5) passed = i + 1;
-        const idx = scrollFrac > 0 ? Math.max(0, passed - 1) : -1;
+        const idx = scrollFrac > 0 ? sectionIndex : -1;
         apply(progLen, idx, true);
       }
     }

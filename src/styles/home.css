@@ -593,5 +593,5 @@ body.e-hide-markers .eye,body.e-hide-markers .cta-flag,body.e-hide-markers .e-ey
 /* the bottom nav pill (Phase 1) already shows the path + click-shortcut
    hint, so the in-canvas hint is hidden to avoid a duplicate. */
 .e-home .e-hint{display:none;}
-/* lift the spatial minimap above the ~84px nav pill at bottom:20px */
-.e-home .e-minimap{bottom:96px;}
+/* in-canvas minimap removed — the persistent bottom nav is the only path UI */
+.e-home .e-minimap{display:none!important;}
