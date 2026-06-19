@@ -32,5 +32,14 @@ function wireForm(root: HTMLElement) {
 }
 
 export default function ContactPage() {
-  return <SpatialCanvasPage sheet={sheetD} detailFor={detailFor} onMount={wireForm} />;
+  // Higher home scale than the default 0.46 — the form is the focal panel and
+  // should feel closer when you land from nav (ORDER →).
+  return (
+    <SpatialCanvasPage
+      sheet={sheetD}
+      detailFor={detailFor}
+      engineOpts={{ mainHomeScale: 0.68 }}
+      onMount={wireForm}
+    />
+  );
 }
