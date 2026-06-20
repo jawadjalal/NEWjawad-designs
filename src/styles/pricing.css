@@ -3,6 +3,9 @@
    Ported verbatim from the Pricing wireframe <style> (D rules only:
    tier panels, ticks, pop-flag, the nested detail panels). Scoped to
    .canvas-page so the generic class names stay contained.
+   POLISH PHASE: tier/header surfaces now use the shared liquid-glass
+   --glass-* tokens to match the home camera (the .pop-flag dark pill
+   stays as-is — it mirrors the homepage .e-tier-badge).
    ============================================================ */
 
 /* tick lists */
@@ -81,20 +84,24 @@
   line-height: 1.4;
 }
 
-/* D · pricing tier panels */
+/* D · pricing tier panels — glass surfaces (shared --glass-* tokens) */
 .canvas-page .pr-tier.sc-hero {
-  background: var(--paper);
+  /* inherit the glass surface from .sc-panel (was opaque paper) */
+  background: var(--glass-bg);
 }
 .canvas-page .pr-tier .sc-body {
   justify-content: flex-start;
   gap: 6px;
 }
 .canvas-page .pr-pop {
+  /* "most popular" tier gets the heavier (hover-weight) glass shadow
+     for emphasis, replacing the wireframe hard offset shadow */
   border-width: 3px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), 8px 8px 0 var(--fill-2);
+  box-shadow: var(--glass-shadow-hover);
 }
 .canvas-page .pr-headbar {
-  background: repeating-linear-gradient(45deg, var(--hatch) 0 9px, transparent 9px 18px), var(--paper);
+  /* clean glass header bar (was a hatch texture) */
+  background: var(--glass-bg);
   align-items: center;
   justify-content: center;
   text-align: center;

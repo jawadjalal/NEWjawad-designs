@@ -4,6 +4,9 @@
    the horizontal scroll-strip of step cards + CTA + progress bar;
    the step-detail canvas reuses the shared sc-* atoms in canvas.css).
    Scoped to .canvas-page. Font literal 'Permanent Marker' → --font-marker.
+   POLISH PHASE: the step cards + floating CTA now wear the homepage's
+   liquid-glass material (shared --glass-* tokens) so /process matches
+   the home camera; the strip layout/scroll behaviour is unchanged.
    ============================================================ */
 
 .canvas-page .proc-stage {
@@ -77,19 +80,22 @@
   position: relative;
   z-index: 1;
   cursor: pointer;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 10px;
+  /* liquid-glass step card (shared --glass-* tokens; matches home .e-panel) */
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--glass-radius);
   padding: 24px 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 9px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--glass-shadow);
   transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.22s, opacity 0.22s;
 }
 .canvas-page .proc-step.active {
   transform: scale(1.05) translateY(-8px);
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--glass-shadow-hover);
 }
 .canvas-page .proc-step:not(.active) {
   opacity: 0.6;
@@ -162,14 +168,17 @@
   right: 22px;
   bottom: 110px;
   z-index: 8;
-  background: var(--paper-2);
-  border: 2px solid var(--ink);
-  border-radius: 10px;
+  /* liquid-glass floating CTA card (was opaque paper-2 / ink border) */
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--glass-radius);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 9px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--glass-shadow);
   max-width: 320px;
 }
 .canvas-page .proc-cta-title {

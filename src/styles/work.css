@@ -4,6 +4,12 @@
    the billboard CSS that work.js injected at runtime + the .ghost
    atoms from wireframe.css. Scoped to .canvas-page; full-screen
    presentation fills the viewport (the shell's fs-nobezel form).
+   POLISH PHASE: the project/weld card frames (set inline in
+   work-content.ts) now use the homepage's sticker-frame treatment
+   (frosted white border + deep rim-light shadow, like .e-billboard)
+   and the "coming soon" ghosts get a soft-glass fill. The cover
+   images and the dark billboard board stay as media — and the busy
+   board deliberately avoids per-card backdrop blur for pan/zoom perf.
    ============================================================ */
 
 /* billboard (was injected by work.js) */
@@ -92,10 +98,13 @@
   z-index: 3;
 }
 
-/* ghost ("coming soon") atom from wireframe.css */
+/* ghost ("coming soon") atom from wireframe.css — soft-glass placeholder
+   (kept dashed so it still reads as an empty/upcoming slot) */
 .canvas-page .ghost {
   border: 1.5px dashed var(--line);
-  background: var(--paper-2);
+  background: var(--glass-bg-soft);
+  backdrop-filter: var(--glass-blur-soft);
+  -webkit-backdrop-filter: var(--glass-blur-soft);
   display: flex;
   flex-direction: column;
   align-items: center;

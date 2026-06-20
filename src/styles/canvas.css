@@ -6,10 +6,14 @@
    atoms + the per-page `<style>` Direction-D rules + the shell's
    full-screen (FS_CSS / fs-nobezel) presentation.
 
-   Faithful 1:1 port. Two mechanical changes only:
-   - font literals → next/font vars (no CSS @import)
-   - the A/B/C linear-layout rules are dropped (we ship D only,
-     per hard rule #2 — same as Phase 2 keeping E only).
+   Originally a faithful 1:1 port of the prototype's wireframe D
+   (font literals → next/font vars; A/B/C linear layouts dropped —
+   we ship D only). POLISH PHASE: the panel *surfaces* now wear the
+   homepage's liquid-glass material (the shared --glass-* tokens in
+   globals.css) instead of the flat wireframe paper/ink cards, so the
+   secondary pages match the home camera. Layout, numbering and the
+   greybox media placeholders (.img/.bar/hatch) are unchanged — glass
+   goes on the card chrome, not the picture areas.
    Greybox tokens (--fill/--fill-2/--hatch) live in globals :root.
    Every spatial page wraps its canvas in `.canvas-page`.
    ============================================================ */
@@ -96,11 +100,15 @@
   font-size: 10px;
   letter-spacing: 0.04em;
   color: var(--ink-soft);
-  border: 1px solid var(--line-soft);
+  /* soft-glass chip — matches the homepage .e-tier material */
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
   border-radius: 999px;
   padding: 3px 9px;
   white-space: nowrap;
-  background: var(--paper);
+  background: var(--glass-bg-soft);
+  backdrop-filter: var(--glass-blur-soft);
+  -webkit-backdrop-filter: var(--glass-blur-soft);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 /* ============================================================
@@ -157,17 +165,21 @@
 .sc-panel {
   position: absolute;
   transform: translate(-50%, -50%);
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 5px;
+  /* liquid-glass surface (shared --glass-* tokens; matches home .e-panel) */
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--glass-radius);
   padding: 13px 14px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  transition: transform 0.14s, box-shadow 0.14s;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.14s, box-shadow 0.25s var(--ease-smooth), border-color 0.2s;
 }
 .sc-panel:hover {
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--glass-shadow-hover);
+  border-color: rgba(255, 255, 255, 0.95);
   z-index: 4;
 }
 .sc-num {
@@ -203,10 +215,11 @@
   min-height: 0;
 }
 .sc-hero {
-  background: repeating-linear-gradient(45deg, var(--hatch) 0 8px, transparent 8px 16px);
+  /* hero reads as clean glass (was a hatch texture) — matches home */
+  background: var(--glass-bg);
 }
 .sc-cta {
-  background: var(--paper-2);
+  /* inherit the glass surface from .sc-panel (was opaque paper-2) */
   align-items: flex-start;
 }
 .sc-cta .sc-body {
@@ -221,7 +234,7 @@
 /* substantial core service panels (2 & 3) */
 .sc-svc-core {
   border-width: 2.5px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.13);
+  box-shadow: var(--glass-shadow);
   padding: 16px 16px 14px;
 }
 .sc-svc-core .sc-body {
@@ -263,7 +276,7 @@
   align-items: center;
   justify-content: center;
   border-style: solid;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--glass-shadow);
 }
 .sc-sat .sc-body {
   align-items: center;
@@ -288,7 +301,8 @@
   color: var(--ink-soft);
 }
 .sc-offerpanel {
-  background: var(--paper);
+  /* inherit the glass surface from .sc-panel (was opaque paper) */
+  background: var(--glass-bg);
 }
 
 /* openable panels + zoom-expand detail overlay (canvas-in-a-canvas) */
@@ -314,7 +328,7 @@
   opacity: 1;
 }
 .sc-panel.openable:hover {
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow-hover);
 }
 .sc-detail {
   position: absolute;
@@ -381,7 +395,8 @@
   top: 50px;
 }
 .nd-outcome {
-  background: var(--paper-2);
+  /* inherit the glass surface from .sc-panel (was opaque paper-2) */
+  background: var(--glass-bg);
 }
 .nd-outcome .svc-outcome {
   font-size: 13px;
@@ -402,7 +417,8 @@
   margin-bottom: 4px;
 }
 .nd-cta {
-  background: var(--paper-2);
+  /* inherit the glass surface from .sc-panel (was opaque paper-2) */
+  background: var(--glass-bg);
 }
 .std-chiplist.tight {
   margin-top: 8px;
@@ -419,13 +435,15 @@
 
 /* showstopper anchor */
 .sc-anchor {
-  border: 3px solid var(--ink);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), 8px 8px 0 var(--fill-2);
+  /* showstopper anchor as clean glass (was an ink-bordered hatch card
+     with a hard offset shadow) — matches the home camera's anchor panels */
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 20px 24px;
-  background: repeating-linear-gradient(45deg, var(--hatch) 0 9px, transparent 9px 18px), var(--paper);
+  background: var(--glass-bg);
 }
 .sc-anchor .sc-body {
   align-items: center;
@@ -570,7 +588,7 @@
   align-items: center;
   text-align: center;
   border-width: 2.5px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.17), 6px 6px 0 var(--fill-2);
+  box-shadow: var(--glass-shadow-hover);
 }
 .canvas-page .nd-cta-prom .sc-body {
   align-items: center;

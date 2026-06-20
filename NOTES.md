@@ -554,3 +554,32 @@ pages still exist and are still reachable by clicking the on-canvas panels (that
 section. Verified end-to-end (scripts/_verify-navsection.mjs): same-page travel,
 About travels without opening its detail, and cross-page `/work` + Process lands
 on home section 2, all without leaving `/`.
+
+---
+
+## Polish phase · liquid-glass material across the secondary pages
+
+The migration is done; first polish task was to make `/services`, `/pricing`,
+`/contact`, `/process`, `/work` (+ `/work/[slug]`) read with the same finish as
+the home camera. They were faithful ports of the prototype's wireframe
+Direction D (opaque paper cards, ink borders, flat/"sketch" offset shadows),
+which looked unfinished next to the homepage's frosted-glass panels.
+
+**Decision:** promote the homepage `.e-panel` recipe to shared CSS custom
+properties (`--glass-*` in `globals.css`) and point the spatial-canvas panel
+*surfaces* at them — `.sc-panel` (+ its hero/anchor/cta/sat/core/nd-* variants),
+`.proc-step`/`.proc-cta`, the pricing tiers/header, and the contact form panel +
+frosted fields/chips. `home.css` keeps its literal values and stays the canonical
+reference (left untouched to avoid regressing the working homepage); the tokens
+are copied verbatim from it, so the material is identical.
+
+**Tradeoffs / boundaries:**
+- Glass goes on card **chrome**, not media: image/greybox placeholders (`.img`,
+  `.bar`, `.cal-slot`, the dark billboard `.bb-wrap`) stay as wireframe stand-ins.
+- `/work` is the exception to "use the blur": its board can hold many panels and
+  the cover images would hide the blur anyway, so the project/weld cards use the
+  homepage's *sticker-frame* treatment instead (white border + deep rim-light
+  shadow, matching `.e-billboard`) — no per-card `backdrop-filter`, which keeps
+  pan/zoom smooth. Only the few empty "coming soon" ghosts get soft glass.
+- `backdrop-filter` is proven to work inside the transformed canvases here
+  because the homepage already blurs `.e-panel` inside the transformed `.e-world`.

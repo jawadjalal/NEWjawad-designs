@@ -25,6 +25,24 @@
   --mono: 'SF Mono', ui-monospace, 'Menlo', monospace;
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ----------------------------------------------------------
+     Liquid-glass material — the homepage's `.e-panel` recipe,
+     promoted to tokens so every page shares one surface treatment
+     (working rule: shared treatments are tokens, defined once).
+     Values are copied verbatim from home.css's `.e-panel`; that
+     class stays the canonical reference. Used by the spatial-canvas
+     pages (services/pricing/contact/process/work) to match home.
+     ---------------------------------------------------------- */
+  --glass-bg: linear-gradient(152deg, rgba(255, 255, 255, 0.7), rgba(245, 244, 240, 0.6) 52%, rgba(235, 233, 228, 0.66));
+  --glass-blur: blur(10px) saturate(1.06);
+  --glass-border: 3px solid rgba(255, 255, 255, 0.82);
+  --glass-radius: 13px;
+  --glass-shadow: 0 0 0 1px var(--line-soft), 0 14px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  --glass-shadow-hover: 0 22px 46px rgba(0, 0, 0, 0.24);
+  /* lighter chip/tier variant (homepage `.e-tier`) */
+  --glass-bg-soft: linear-gradient(152deg, rgba(255, 255, 255, 0.55), rgba(235, 233, 228, 0.42));
+  --glass-blur-soft: blur(7px) saturate(1.04);
 }
 
 * {

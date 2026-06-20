@@ -68,7 +68,7 @@ function wbBillboard(p: Panel): string {
 }
 
 function wbProj(p: Panel, proj: Proj): string {
-  return `<div class="wb-panel wb-proj" data-slug="${proj.id}" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:8px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line-soft);border-radius:5px;box-shadow:0 4px 14px rgba(0,0,0,.1);">
+  return `<div class="wb-panel wb-proj" data-slug="${proj.id}" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:8px;display:flex;flex-direction:column;gap:6px;border:2.5px solid rgba(255,255,255,.85);border-radius:7px;box-shadow:0 0 0 1px var(--line-soft),0 16px 38px rgba(0,0,0,.2);">
     <div style="flex:1;min-height:0;border-radius:3px;overflow:hidden;">
       <img src="${proj.src}" alt="${proj.name}" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:${proj.pos};display:block;"/>
     </div>
@@ -85,7 +85,7 @@ function wbPanel(p: Panel): string {
   if (p.type === 'vizzbees') return wbProj(p, PROJS[0]);
   if (p.type === 'kleoklaw') return wbProj(p, PROJS[1]);
   if (p.type === 'weld') {
-    return `<div class="wb-panel wb-weld" data-slug="weld" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:10px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line-soft);border-radius:7px;box-shadow:0 6px 28px rgba(0,0,0,.16);" data-bb='${bbJSON()}'>
+    return `<div class="wb-panel wb-weld" data-slug="weld" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:10px;display:flex;flex-direction:column;gap:8px;border:2.5px solid rgba(255,255,255,.85);border-radius:8px;box-shadow:0 0 0 1px var(--line-soft),0 20px 50px rgba(0,0,0,.22);" data-bb='${bbJSON()}'>
       <div class="bb-wrap" style="flex:1;min-height:0;border-radius:4px;overflow:hidden;">
         <div class="bb-slats">${bbSlatsHTML(BB_PROJS[0])}</div>
         <div class="bb-overlay"><span class="bb-name">${BB_PROJS[0].name}</span><span class="bb-cat">${BB_PROJS[0].cat}</span></div>
