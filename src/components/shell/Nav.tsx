@@ -8,23 +8,26 @@
  * primary path (a11y), with the prototype's left/right-click kept as a
  * power-user shortcut, guarded so it can't hijack real interactions.
  */
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { Link, useTransitionRouter } from 'next-view-transitions';
 import PathProgress from './PathProgress';
+import { useStore } from '@/lib/store';
 
-type NavLink = { label: string; href: string };
+type NavLink = { label: string; section: number };
 
-// 7 nodes in curve order, matching the prototype. About + Trust are in-canvas
-// homepage panels (not routes) — they point home for now; Phase 2 opens the panel.
+// 7 nodes in curve order. Their index is the homepage section index (the home
+// camera's SECTIONS are in this exact order: Work · Services · Process · About ·
+// Trust · Pricing · Contact). Clicking a link travels the camera to that
+// section rather than routing to a standalone page.
 const LINKS: NavLink[] = [
-  { label: 'Work', href: '/work' },
-  { label: 'Services', href: '/services' },
-  { label: 'Process', href: '/process' },
-  { label: 'About', href: '/' },
-  { label: 'Trust', href: '/' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Work', section: 0 },
+  { label: 'Services', section: 1 },
+  { label: 'Process', section: 2 },
+  { label: 'About', section: 3 },
+  { label: 'Trust', section: 4 },
+  { label: 'Pricing', section: 5 },
+  { label: 'Contact', section: 6 },
 ];
 
 // distinct routes in nav order, for arrow-key / click stepping
@@ -45,9 +48,28 @@ export default function Nav() {
   const linksRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
 
-  // CTA flips on the contact page, exactly like the prototype's updateCTA
+  const onHome = pathname === '/';
+
+  // CTA flips on the contact page, exactly like the prototype's updateCTA. Like
+  // the links, it now travels to a homepage section instead of a page: ORDER →
+  // the Contact slab (6); on the contact page, "See the work" → Work (0).
   const onContact = pathname.startsWith('/contact');
-  const cta = onContact ? { label: 'See the work →', href: '/work' } : { label: 'ORDER →', href: '/contact' };
+  const cta = onContact ? { label: 'See the work →', section: 0 } : { label: 'ORDER →', section: 6 };
+
+  // Travel the home camera to a section. On the homepage we call the live
+  // camera directly; from any other page we park the target and route home,
+  // where <HomeCamera/> picks it up on mount and glides there.
+  const goToSection = useCallback(
+    (i: number) => {
+      const { cameraGoto, requestSection } = useStore.getState();
+      if (onHome && cameraGoto) cameraGoto(i);
+      else {
+        requestSection(i);
+        router.push('/');
+      }
+    },
+    [onHome, router],
+  );
 
   // keyboard + power-user click navigation
   useEffect(() => {
@@ -148,13 +170,31 @@ export default function Nav() {
           <div className="nav-links" data-cursor-path ref={linksRef}>
             <svg className="nav-curve" aria-hidden="true" />
             {LINKS.map((l, i) => (
-              <Link key={`${l.label}-${i}`} href={l.href} data-go={l.label.toLowerCase()}>
+              // Still a Link to "/" (so middle-click / open-in-new-tab land on
+              // home, and the rendered <a> keeps the curve markup PathProgress
+              // measures), but onClick preventDefaults and travels in-place.
+              <Link
+                key={`${l.label}-${i}`}
+                href="/"
+                data-go={l.label.toLowerCase()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToSection(l.section);
+                }}
+              >
                 <span className="lbl">{l.label}</span>
               </Link>
             ))}
           </div>
 
-          <Link className="cta" href={cta.href}>
+          <Link
+            className="cta"
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              goToSection(cta.section);
+            }}
+          >
             <span className="cta-lbl">{cta.label}</span>
           </Link>
         </div>

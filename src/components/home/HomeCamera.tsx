@@ -27,11 +27,20 @@ export default function HomeCamera() {
     () => {
       const root = rootRef.current;
       if (!root) return;
+      // A nav link clicked on another page parks its target section here; pick
+      // it up so we land on that section instead of replaying the brand intro.
+      const initialSection = useStore.getState().consumeSection();
       const ctrl = createHomeCamera(root, {
         onNav: ({ frac, idx }) => useStore.getState().setScroll(frac, idx),
         onRoute: (route) => router.push(`/${route}`),
+        initialSection,
       });
-      return () => ctrl.destroy();
+      // Expose the camera's section-travel to the persistent <Nav/> while mounted.
+      useStore.getState().registerCamera(ctrl.gotoSection);
+      return () => {
+        useStore.getState().registerCamera(null);
+        ctrl.destroy();
+      };
     },
     { scope: rootRef },
   );

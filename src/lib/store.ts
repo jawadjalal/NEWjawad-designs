@@ -37,17 +37,37 @@ type StoreState = {
   setScroll: (frac: number, idx?: number) => void;
   setMode: (mode: CameraMode) => void;
   setCanvas: (t: { zoom?: number; panX?: number; panY?: number }) => void;
+
+  /**
+   * Bridge to the live home camera. <HomeCamera/> registers its section-travel
+   * fn here while mounted; the persistent <Nav/> calls it so a nav link glides
+   * the camera to that homepage section instead of routing to a separate page.
+   * Null whenever the homepage (and its camera) isn't mounted.
+   */
+  cameraGoto: ((i: number) => void) | null;
+  /**
+   * A section requested from another page, before the camera exists. Stashed
+   * here, then consumed by <HomeCamera/> on mount so the link still "travels"
+   * to the right section once we've landed on home.
+   */
+  pendingSection: number | null;
+  registerCamera: (goto: ((i: number) => void) | null) => void;
+  requestSection: (i: number) => void;
+  /** Read + clear any pending section (call once, on camera mount). */
+  consumeSection: () => number | null;
 };
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
-export const useStore = create<StoreState>((set) => ({
+export const useStore = create<StoreState>((set, get) => ({
   sectionIndex: 0,
   scrollFrac: 0,
   mode: 'travel',
   zoom: 1,
   panX: 0,
   panY: 0,
+  cameraGoto: null,
+  pendingSection: null,
 
   goto: (i) => {
     const idx = clamp(Math.round(i), 0, SECTION_COUNT - 1);
@@ -64,4 +84,12 @@ export const useStore = create<StoreState>((set) => ({
 
   setMode: (mode) => set({ mode }),
   setCanvas: (t) => set((s) => ({ ...s, ...t })),
+
+  registerCamera: (goto) => set({ cameraGoto: goto }),
+  requestSection: (i) => set({ pendingSection: clamp(Math.round(i), 0, SECTION_COUNT - 1) }),
+  consumeSection: () => {
+    const pending = get().pendingSection;
+    if (pending != null) set({ pendingSection: null });
+    return pending;
+  },
 }));

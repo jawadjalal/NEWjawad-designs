@@ -76,11 +76,19 @@ export type HomeCameraOpts = {
   onNav?: (s: { frac: number; idx: number }) => void;
   /** A route panel was activated → navigate to /<route>. */
   onRoute?: (route: string) => void;
+  /**
+   * Land directly on this section when arriving from another page (a nav link
+   * that travels to a homepage section). Skips the brand intro and glides the
+   * camera straight to the section. Null/undefined = normal first-visit intro.
+   */
+  initialSection?: number | null;
 };
 
 export type HomeCameraController = {
   destroy: () => void;
   gotoPanel: (i: number) => void;
+  /** Travel to a section even if the brand loader is still up (drops it first). */
+  gotoSection: (i: number) => void;
   replayIntro: () => void;
 };
 
@@ -854,6 +862,13 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     addTick(step);
   }
   function gotoPanel(i: number) { cancelSnap(); glideTo(Math.max(0, Math.min(SECTIONS.length - 1, i))); }
+  // Like gotoPanel, but copes with the brand loader still being up (e.g. a nav
+  // link clicked the instant you land on home): drop the loader first so the
+  // camera is live, then travel.
+  function gotoSection(i: number) {
+    if (introActive || (loaderEl && loaderEl.style.display !== 'none')) dismissLoader();
+    gotoPanel(i);
+  }
   function currentIdx() { return Math.round(currentProgress() * (SECTIONS.length - 1)); }
   function navFwd() { const i = currentIdx(); if (i >= SECTIONS.length - 1) { loopToHero(); return; } gotoPanel(i + 1); }
   function loopToHero() {
@@ -1119,7 +1134,32 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   });
 
   /* ---------- boot ---------- */
+  // When we arrive from another page via a nav-link section request, suppress
+  // the brand intro (introPlayed=true keeps maybeIntro from showing the loader)
+  // so we can land straight on the requested section.
+  if (opts.initialSection != null) introPlayed = true;
   build();
+  if (opts.initialSection != null) {
+    const tgt = Math.max(0, Math.min(SECTIONS.length - 1, opts.initialSection));
+    // build() sets loaderEl inside buildLoader(), so TS's straight-line flow
+    // still thinks it's null here — cast to read the real (built) reference.
+    const ldr = loaderEl as HTMLElement | null;
+    if (ldr) ldr.style.display = 'none';
+    introActive = false;
+    viewport.style.overflow = '';
+    if (!spatial()) {
+      // mobile: no camera — just position the native scroll on the section slice
+      const seg = SECTIONS.length - 1, max = scrollMax();
+      const dest = seg > 0 ? clampS((tgt / seg) * max) : 0;
+      pos = target = dest; viewport.scrollTop = dest; applyFromProgress(currentProgress());
+      settled = true; expandActive(tgt);
+    } else {
+      // desktop: settle on the hero, then glide the camera over to the section
+      pos = target = 0; viewport.scrollTop = 0; applyFromProgress(0);
+      settled = true; expandActive(0);
+      if (tgt > 0) gotoPanel(tgt);
+    }
+  }
 
   return {
     destroy() {
@@ -1128,6 +1168,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       cleanups.forEach((fn) => { try { fn(); } catch (_) { /* ignore */ } });
     },
     gotoPanel,
+    gotoSection,
     replayIntro() { if (loaderEl) { introPlayed = true; showLoader(); } },
   };
 }

@@ -526,3 +526,31 @@ re-centres after hydration. Tradeoff: each preview boots a full route in an
 iframe — heavy, but lazy (mounts once, on dwell) and exactly what the prototype
 did. Verified: all four previews mount `/work`,`/services`,`/process`,`/pricing`
 and the in-iframe chrome is hidden (no double-nav).
+
+### Change — nav links now travel to homepage sections (not separate pages)
+
+The persistent bottom-nav links used to route to standalone pages (`/work`,
+`/services`, …; About/Trust pointed at `/`). Requested change: each link should
+travel the home camera to the **matching homepage section** instead.
+
+**How:** the seven links are index-aligned with the camera's `SECTIONS` (Work ·
+Services · Process · About · Trust · Pricing · Contact), so a link just carries a
+section index. `<Nav/>` (persistent shell) reaches the camera through a small
+Zustand bridge: `<HomeCamera/>` registers `ctrl.gotoSection` on mount
+(`registerCamera`) and clears it on unmount. Clicking a link:
+- **on `/`** → calls `cameraGoto(i)` directly → `gotoSection` drops the brand
+  loader if it's still up, then glides to the section.
+- **off `/`** → `requestSection(i)` parks the target, then routes to `/`;
+  `<HomeCamera/>` `consumeSection()`s it on mount via the new `initialSection`
+  option, which suppresses the intro and lands straight on the section (glide on
+  desktop, native-scroll jump on mobile).
+
+The CTA follows the same rule (ORDER → Contact section 6; "See the work" → Work
+0). Links stay real `<Link href="/">` anchors (so middle-click / open-in-new-tab
+still go home, and PathProgress keeps the `<a>` curve markup it measures); the
+click is intercepted with `preventDefault`. **Tradeoff:** the standalone route
+pages still exist and are still reachable by clicking the on-canvas panels (that
+`onRoute` path is unchanged) — only the *navbar* now prefers the in-page
+section. Verified end-to-end (scripts/_verify-navsection.mjs): same-page travel,
+About travels without opening its detail, and cross-page `/work` + Process lands
+on home section 2, all without leaving `/`.
