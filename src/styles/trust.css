@@ -1,0 +1,74 @@
+/* /trust — Direction-D specific styles (layered on canvas.css).
+   The hand-drawn pull-quote is ported from the homepage Trust panel
+   (home.css .e-quote / .e-attrib), sized down to sit in the hero panel.
+   Scoped to .canvas-page so the generic class names stay contained. */
+
+/* hero: the pull-quote, then the attribution */
+.canvas-page .tr-hero {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 16px;
+}
+.canvas-page .tr-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--hand);
+  color: var(--ink);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+}
+.canvas-page .tr-quote .q1 { font-size: 26px; }
+.canvas-page .tr-quote .q2 { font-size: 34px; }
+.canvas-page .tr-quote .q3 { font-size: 44px; }
+.canvas-page .tr-attrib {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* satellite cards */
+.canvas-page .tr-h {
+  font-family: var(--hand);
+  font-size: 19px;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.canvas-page .tr-p {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* the result: three stats in a row */
+.canvas-page .tr-result .sc-body { justify-content: center; }
+.canvas-page .tr-stats {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 6px;
+}
+.canvas-page .tr-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.canvas-page .tr-statnum {
+  font-family: var(--hand);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+@media (pointer: coarse), (max-width: 760px) {
+  .canvas-page .tr-quote .q3 { font-size: 38px; }
+}

@@ -583,3 +583,29 @@ are copied verbatim from it, so the material is identical.
   pan/zoom smooth. Only the few empty "coming soon" ghosts get soft glass.
 - `backdrop-filter` is proven to work inside the transformed canvases here
   because the homepage already blurs `.e-panel` inside the transformed `.e-world`.
+
+---
+
+## Standalone /about + /trust pages (nav no longer dumps to the homepage hero)
+
+**Why:** clicking About/Trust in the bottom nav from another page routed to `/`
+and the desktop home-camera settles on the hero before gliding to the section —
+it read as "thrown back to the start of the homepage." About/Trust were the only
+nav items with no standalone route (they lived only as homepage panels), so
+`goTo()` in `Nav.tsx` fell back to `requestSection()` + `push('/')`.
+
+**Decision:** give every nav item its own page — build real `/about` and
+`/trust` routes. They follow the **Contact precedent**: the homepage panel still
+match-cuts into its on-canvas nested detail, AND a standalone route is reachable
+from the nav. So `home-camera.ts` is untouched; only the nav links gain routes.
+
+**Shape:** both pages reuse the slug/`SpatialCanvasPage` pattern — a `.sc-hero`
+core (About: portrait + bio; Trust: the pull-quote) with satellite cards wired
+off it (`about-content.ts` / `trust-content.ts`, `about.css` / `trust.css`).
+
+**Tradeoff:** the orbit copy now exists both in `detailFor('about'/'trust')`
+(home nested detail) and in the new page content — the same small duplication
+Contact already carries. Accepted: the two render in different markup formats
+(home detail engine vs `.scase`), so sharing one source would cost more than it
+saves. The greybox placeholder bars from the orbit canvas were promoted to real
+sentences, since this is now a page people read.

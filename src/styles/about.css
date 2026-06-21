@@ -1,0 +1,81 @@
+/* /about — Direction-D specific styles (layered on canvas.css).
+   The portrait ring/glare are ported from the homepage About panel
+   (home.css .e-portal-ring / .e-portal-glare) so the page reads in the same
+   liquid-glass language. Scoped to .canvas-page so the generic class names
+   stay contained to this route. */
+
+/* hero: portrait + name + one-line bio, centred in the glass hero panel */
+.canvas-page .ab-hero {
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 18px 16px;
+}
+.canvas-page .ab-ring {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  align-self: center;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 1px var(--line-soft), 0 14px 30px rgba(0, 0, 0, 0.16);
+  background: var(--paper-2);
+}
+.canvas-page .ab-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.canvas-page .ab-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(110px 80px at 33% 24%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 62%);
+  mix-blend-mode: soft-light;
+}
+.canvas-page .ab-name {
+  font-family: var(--hand);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink);
+}
+.canvas-page .ab-hero .ab-bio {
+  margin: 0;
+}
+
+/* satellite cards: a real heading + a sentence (was greybox bars) */
+.canvas-page .ab-h {
+  font-family: var(--hand);
+  font-size: 19px;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.canvas-page .ab-p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.canvas-page .ab-cta .sc-body {
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+}
+.canvas-page .ab-cta .btn {
+  text-decoration: none;
+}
+
+@media (pointer: coarse), (max-width: 760px) {
+  .canvas-page .ab-ring {
+    width: 128px;
+    height: 128px;
+  }
+}

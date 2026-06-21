@@ -28,19 +28,21 @@ const LINKS: NavLink[] = [
   { label: 'Work', section: 0, route: '/work' },
   { label: 'Services', section: 1, route: '/services' },
   { label: 'Process', section: 2, route: '/process' },
-  { label: 'About', section: 3 },
-  { label: 'Trust', section: 4 },
+  { label: 'About', section: 3, route: '/about' },
+  { label: 'Trust', section: 4, route: '/trust' },
   { label: 'Pricing', section: 5, route: '/pricing' },
   { label: 'Contact', section: 6, route: '/contact' },
 ];
 
 // distinct routes in nav order, for arrow-key / click stepping
-const ROUTES = ['/', '/work', '/services', '/process', '/pricing', '/contact'];
+const ROUTES = ['/', '/work', '/services', '/process', '/about', '/trust', '/pricing', '/contact'];
 
 function baseRoute(path: string): string {
   if (path.startsWith('/work')) return '/work';
   if (path.startsWith('/services')) return '/services';
   if (path.startsWith('/process')) return '/process';
+  if (path.startsWith('/about')) return '/about';
+  if (path.startsWith('/trust')) return '/trust';
   if (path.startsWith('/pricing')) return '/pricing';
   if (path.startsWith('/contact')) return '/contact';
   return '/';
