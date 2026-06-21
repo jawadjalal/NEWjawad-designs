@@ -245,7 +245,7 @@
   /* the header drops into normal flow at the top of the scroll */
   .canvas-page .proc-topbar {
     position: static;
-    padding: 20px 18px 8px;
+    padding: 20px var(--stack-gutter) 8px;
     background: none;
   }
   .canvas-page .proc-scroller {
@@ -264,7 +264,7 @@
     width: 100%;
     max-width: 588px;
     margin: 0 auto;
-    padding: 4px 18px 8px;
+    padding: 4px var(--stack-gutter) 8px;
   }
   .canvas-page .proc-step {
     flex: none;
@@ -273,6 +273,7 @@
     /* no active-card tracking on the stack — every step reads at full strength */
     opacity: 1 !important;
     transform: none !important;
+    overflow-wrap: break-word;
   }
   /* the right-pointing connector arrow only makes sense on the horizontal strip */
   .canvas-page .proc-step:not(:last-child)::after {
@@ -281,9 +282,9 @@
   /* CTA moves from a floating card into the flow, below the steps */
   .canvas-page .proc-cta {
     position: static;
-    width: calc(100% - 36px);
+    width: calc(100% - 2 * var(--stack-gutter));
     max-width: 588px;
-    margin: 4px auto 132px; /* bottom clears the persistent nav pill */
+    margin: 4px auto var(--stack-bottom); /* bottom clears the persistent nav pill */
   }
   .canvas-page .proc-progress {
     display: none;

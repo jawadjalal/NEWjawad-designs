@@ -263,7 +263,7 @@
     width: 100%;
     max-width: 620px;
     margin: 0 auto;
-    padding: 18px 18px 132px;
+    padding: 18px var(--stack-gutter) var(--stack-bottom);
   }
   /* drop absolute placement + the pinned-paper rotation; fill the column */
   .canvas-page .wb-panel {
@@ -272,6 +272,7 @@
     top: auto !important;
     width: auto !important;
     transform: none !important;
+    overflow-wrap: break-word;
   }
   /* decorative empty board fillers — not part of the linear list */
   .canvas-page .wb-panel:not([data-slug]) {
@@ -300,7 +301,7 @@
     top: 0;
     left: auto;
     z-index: 10;
-    padding: 16px 18px 12px;
+    padding: 16px var(--stack-gutter) 12px;
     background: var(--paper);
     border-bottom: 1px solid var(--line-soft);
   }

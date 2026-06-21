@@ -688,7 +688,7 @@
     width: 100%;
     max-width: 620px; /* a readable column, centred on wide touch tablets */
     margin: 0 auto;
-    padding: 18px 18px 132px; /* bottom clears the persistent bottom-nav pill */
+    padding: 18px var(--stack-gutter) var(--stack-bottom);
   }
 
   /* panels: drop the absolute placement, fill the column, size to content.
@@ -701,6 +701,8 @@
     height: auto !important;
     min-height: 0 !important;
     transform: none !important;
+    /* long words / URLs can't push the card past the viewport edge */
+    overflow-wrap: break-word;
   }
   /* touch has no hover, so surface the "open" affordance permanently */
   .sc-panel.openable .sc-open-cur {
@@ -722,7 +724,7 @@
     top: 0;
     left: auto;
     z-index: 10;
-    padding: 16px 18px 12px;
+    padding: 16px var(--stack-gutter) 12px;
     background: var(--paper);
     border-bottom: 1px solid var(--line-soft);
     pointer-events: auto;

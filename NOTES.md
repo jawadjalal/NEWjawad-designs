@@ -610,3 +610,27 @@ foundation the later phases build on.
 
 **Tradeoff:** overriding (not extending) Tailwind's `screens` drops the default
 `2xl` — intentional, since large-desktop is deprioritized for this pass.
+
+---
+
+## Responsive overhaul — Phase 2 (small-screen hardening, phones 320–430px)
+
+**Decisions:**
+- **Stacked-layout tokens (`--stack-gutter`, `--stack-bottom`).** The mobile
+  vertical-scroll fallback repeated `18px` side padding and a `132px`/`96px`
+  bottom clearance across five files with slightly different values. Promoted
+  both to `:root` tokens and threaded them through every stacked column + sticky
+  header (canvas, work, process, home). One place to tune the mobile rhythm, and
+  the home page now matches the canvas pages' nav clearance (was 96px → 120px).
+- **No padding collapse at 320px.** `--stack-gutter` is `clamp(13px, 4vw, 18px)`
+  — it stays 18px on roomy phones but eases to 13px at ~320px, recovering ~10px
+  of column width on the smallest devices so content no longer squeezes to ~284px.
+- **`overflow-wrap: break-word`** on stacked panels (`.sc-panel`, `.wb-panel`,
+  `.proc-step`, home `.e-panel`) so a long word or URL can't push a card past the
+  viewport edge and reintroduce horizontal scroll.
+
+**Left deliberately alone (flagged for on-device review):** the bottom nav pill's
+8.5px mobile labels. The pill's curve is fitted from live rects in JS
+(PathProgress), so resizing the labels risks the path math; it's safer to eyeball
+it on a real phone before touching it. No glass-parity work was needed — stacked
+panels already inherit the `--glass-*` material from their base rules.

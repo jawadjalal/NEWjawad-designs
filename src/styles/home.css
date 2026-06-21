@@ -447,10 +447,10 @@ body.e-hide-markers .eye,body.e-hide-markers .cta-flag,body.e-hide-markers .e-ey
   body .e-track{height:auto!important;min-height:0!important;}
   body .e-camera{position:static!important;height:auto!important;overflow:visible!important;}
   body .e-world{position:static!important;transform:none!important;width:100%!important;height:auto!important;
-    display:flex!important;flex-direction:column;align-items:center;gap:20px;padding:24px 16px 96px;}
+    display:flex!important;flex-direction:column;align-items:center;gap:20px;padding:24px var(--stack-gutter) var(--stack-bottom);}
   body .e-world .e-wires{display:none!important;}
   body .e-world .e-panel{position:static!important;left:auto!important;top:auto!important;
-    transform:none!important;width:min(560px,92vw)!important;min-height:0!important;opacity:1!important;}
+    transform:none!important;width:min(560px,92vw)!important;min-height:0!important;opacity:1!important;overflow-wrap:break-word;}
   body .e-world .e-panel.is-active{transform:none!important;box-shadow:0 8px 22px rgba(0,0,0,.10)!important;}
   body .e-minimap,body .e-progress,body .e-hint{display:none!important;}
   body .e-title.big{font-size:46px;}
