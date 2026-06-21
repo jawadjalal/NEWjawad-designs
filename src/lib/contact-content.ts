@@ -15,7 +15,7 @@ const flag = (t: string, pos: string) => `<span class="cta-flag" style="${pos}">
 const btn = (txt: string, cls = '') => `<span class="btn ${cls}">${txt}</span>`;
 
 const HEADLINE = 'Let’s build something.';
-const EMAIL = 'hi@jawad.design';
+const EMAIL = 'hi@jawadj.design';
 export const TIER_NAMES: Record<string, string> = { none: '—', single: 'The Single', edition: 'The Edition', commission: 'The Commission' };
 
 function form(o: { flags?: boolean; big?: boolean } = {}): string {
@@ -58,7 +58,7 @@ function scPanel(o: PanelOpts): string {
 export function sheetD(): string {
   // the FORM is the one focused panel you land on (centre, sc-hero); supporting cards orbit and open.
   const formPanel = scPanel({ n: 1, tag: '① THE FORM · land here', cls: 'sc-hero cf-formpanel accent-zone', x: 0, y: 0, w: 404, h: 486, body: `<div class="cf-headline sm">${HEADLINE}</div>${form({ flags: false, big: true })}` });
-  const socials = scPanel({ n: 2, tag: '② SOCIALS + DIRECT', cls: 'sc-clushead', open: 'socials', x: -418, y: -118, w: 262, h: 152, body: `<div class="clus-title">Find me</div><span class="lbl">Instagram · Behance · LinkedIn</span><span class="lbl" style="margin-top:5px;">${EMAIL}</span>` });
+  const socials = scPanel({ n: 2, tag: '② SOCIALS + DIRECT', cls: 'sc-clushead', open: 'socials', x: -418, y: -118, w: 262, h: 152, body: `<div class="clus-title">Find me</div><span class="lbl">Instagram · X · LinkedIn</span><span class="lbl" style="margin-top:5px;">${EMAIL}</span>` });
   const discord = scPanel({ n: 3, tag: '③ DISCORD', cls: 'sc-clushead', open: 'discord', x: 418, y: -118, w: 262, h: 152, body: `<div class="clus-title">My Discord server</div><span class="lbl">the studio’s community channel</span>` });
   const cal = scPanel({ n: 4, tag: '④ BOOK A CALL', cls: 'sc-clushead sc-cta', open: 'calendly', x: 0, y: 348, w: 300, h: 140, body: `<div class="clus-title">Book a call</div><span class="lbl">restyled Calendly · 15 min</span>` });
   return `<div class="scase worlds cf-canvas">
@@ -87,11 +87,11 @@ function nestedWrap(title: string, inner: string): string {
 export function detailFor(id: string): string {
   if (id === 'socials') {
     const hero = ndHero('Find me', 'where I actually post');
-    const ig = ndP(2, '', `<span class="soc-circ-name">IG</span><span class="nd-foot">@jawad.design</span>`, -210, 134, 150, 150, 'nd-soc-circle');
-    const be = ndP(3, '', `<span class="soc-circ-name">Be</span><span class="nd-foot">@jawad.design</span>`, 0, 134, 150, 150, 'nd-soc-circle');
-    const li = ndP(4, '', `<span class="soc-circ-name">in</span><span class="nd-foot">/in/jawad</span>`, 210, 134, 150, 150, 'nd-soc-circle');
+    const ig = ndP(2, '', `<span class="soc-circ-name">IG</span><span class="nd-foot">@j.awadjalal</span>`, -210, 134, 150, 150, 'nd-soc-circle');
+    const x = ndP(3, '', `<span class="soc-circ-name">X</span><span class="nd-foot">@jawadmakes</span>`, 0, 134, 150, 150, 'nd-soc-circle');
+    const li = ndP(4, '', `<span class="soc-circ-name">in</span><span class="nd-foot">/in/jawad-jalal-designs</span>`, 210, 134, 150, 150, 'nd-soc-circle');
     const em = scPanel({ n: 5, tag: 'email', cls: 'sc-cta nd-cta-prom accent-zone', x: 0, y: 300, w: 392, h: 126, body: `<span class="nd-cta-lead">Or just email me.</span><span class="btn cta-ring sc-btn-lg">${EMAIL}</span>` });
-    return nestedWrap('Socials — detail', hero + ig + be + li + em + flag('confirm which are live', 'top:8px;left:10px;'));
+    return nestedWrap('Socials — detail', hero + ig + x + li + em);
   }
   if (id === 'discord') {
     const hero = ndHero('My Discord server', 'the studio community');
