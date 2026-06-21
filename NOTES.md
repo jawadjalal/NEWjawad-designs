@@ -690,3 +690,40 @@ it through the hook would risk regressing its bespoke intro/loader. Left as-is.
 with px/py = 0, so the composition stays centred at any viewport width — no
 dead-space/clipping fix was needed in the 1024–1280 band; resize already
 re-draws the connector wires (spatial-canvas onResize).
+
+---
+
+## Responsive overhaul — Phase 4 (mobile experience polish)
+
+Target devices stayed phones + small laptops. Three planned items; what each
+became after meeting the codebase:
+
+**1. Responsive / lazy images → `decoding="async"` everywhere + `fetchpriority`.**
+The heavy source PNGs are already superseded by `.webp` (78K hero/portrait vs
+1.8M PNG) and the code only ever references the webp, so `srcset` would buy
+almost nothing. `loading="lazy"` turned out to be *unsafe* here: the home camera
+and whiteboard move content with CSS **transforms**, and `loading="lazy"` relies
+on IntersectionObserver, which doesn't reliably fire on transform-driven motion —
+a lazy image could simply never load when the camera pans to it. So instead:
+- `decoding="async"` on every injected `<img>` (off-main-thread decode, smoother
+  paints, zero intersection dependency — safe in a transformed canvas).
+- `fetchpriority="high"` + `decoding="async"` on the LCP hero ring image.
+- Nested-detail images (About portrait, weld card) are already deferred *by
+  construction* — their HTML is only injected when the detail opens — so they
+  need no lazy attribute.
+- The four unreferenced source PNGs (~5.7 MB total) are dead weight in the repo
+  but never shipped to clients (nothing requests them); left in place since they
+  may be kept as originals. Safe to delete later if repo/deploy size matters.
+
+**2. Mobile nav + control tap feel.** Added `touch-action: manipulation` +
+`-webkit-tap-highlight-color: transparent` to the persistent shell controls (nav
+links, brand, CTA) and the detail-sheet buttons — removes the ~300ms tap delay
+and the grey tap-flash so touch feels as immediate as the desktop cursor UI. The
+8.5px nav labels are still left for on-device review (path-fit risk, as flagged).
+
+**3. Container queries for detail overlays → deliberately skipped.** The
+zoom-into-detail overlay is already full-viewport on both mobile and desktop, so
+a container query would resolve to the same thing as the viewport query it'd
+replace — pure complexity with no behavioural gain (no premature abstraction).
+Instead spent the budget on real touch targets: the sheet's close (26px) and
+back controls were sub-44px, now ~44px on the touch/stacked breakpoint.

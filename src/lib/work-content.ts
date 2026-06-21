@@ -45,7 +45,7 @@ const PANELS: Panel[] = [
 
 const N_SLATS = 8;
 function bbSlatsHTML(proj: Proj): string {
-  return Array.from({ length: N_SLATS }, () => `<div class="bb-slat"><img src="${proj.src}" alt="${proj.name}" draggable="false" style="position:absolute;left:0;width:100%;display:block;object-fit:cover;object-position:${proj.pos};"/></div>`).join('');
+  return Array.from({ length: N_SLATS }, () => `<div class="bb-slat"><img src="${proj.src}" alt="${proj.name}" draggable="false" decoding="async" style="position:absolute;left:0;width:100%;display:block;object-fit:cover;object-position:${proj.pos};"/></div>`).join('');
 }
 
 // JSON the slat animation reads (id included so a click can route to the project).
@@ -70,7 +70,7 @@ function wbBillboard(p: Panel): string {
 function wbProj(p: Panel, proj: Proj): string {
   return `<div class="wb-panel wb-proj" data-slug="${proj.id}" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:8px;display:flex;flex-direction:column;gap:6px;border:2.5px solid rgba(255,255,255,.85);border-radius:7px;box-shadow:0 0 0 1px var(--line-soft),0 16px 38px rgba(0,0,0,.2);">
     <div style="flex:1;min-height:0;border-radius:3px;overflow:hidden;">
-      <img src="${proj.src}" alt="${proj.name}" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:${proj.pos};display:block;"/>
+      <img src="${proj.src}" alt="${proj.name}" draggable="false" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:${proj.pos};display:block;"/>
     </div>
     <div style="flex:none;display:flex;align-items:baseline;gap:6px;padding:0 1px;">
       <span class="lbl" style="font-family:var(--hand);font-size:14px;color:var(--ink);">${proj.name}</span>

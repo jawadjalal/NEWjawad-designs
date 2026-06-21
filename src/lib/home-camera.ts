@@ -60,7 +60,7 @@ const LOGO_NAMES: Record<string, string> = {
 };
 const LOGOS: Record<string, string> = {};
 Object.keys(LOGO_FILES).forEach((k) => {
-  LOGOS[k] = `<img src="${LOGO_FILES[k]}" alt="${LOGO_NAMES[k]}" draggable="false">`;
+  LOGOS[k] = `<img src="${LOGO_FILES[k]}" alt="${LOGO_NAMES[k]}" draggable="false" decoding="async">`;
 });
 const HERO_LOGOS = {
   left: ['figma', 'claude', 'claudecode', 'codex', 'chatgpt'],
@@ -103,7 +103,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
 
   const SECTIONS: Section[] = [
     { id: 'work', ix: '01', tag: 'WORK', title: 'my designs', w: 900, h: 340, route: 'work', pvZoom: 1.28, say: 'open weld ↗', dwellMs: 900,
-      body: `<div class="e-work-img"><img src="/assets/weld/cards.webp" alt="weld — this is who'll be here" draggable="false"></div>
+      body: `<div class="e-work-img"><img src="/assets/weld/cards.webp" alt="weld — this is who'll be here" draggable="false" decoding="async"></div>
        <span class="e-tag"><b class="e-bb-num" data-count="200">200</b> signups · $0 paid · built solo</span>`,
       pvSrc: 'Jawad Work Wireframes.html', pvDir: 'D',
       prev: pv('/work', `<div class="e-pv-row">${img('weld', 'flex:2;height:96px;')}${ghost('soon', 'flex:1;height:96px;')}</div><div class="e-pv-row">${ghost('soon', 'flex:1;height:52px;')}${ghost('soon', 'flex:1;height:52px;')}</div>`),
@@ -145,7 +145,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       prev: pv('/process', `<div class="e-pv-row">${[1, 2, 3, 4, 5, 6].map(() => ghost('', 'flex:1;height:46px;')).join('')}</div>${bars(['100%', '72%'])}`),
       note: ['Process', 'The ribbon — filled low-wide band; 6 phases reveal left→right scrubbed to camera; tilts+glares; opens /process.'] },
     { id: 'about', ix: '04', tag: 'ABOUT', title: 'just me', w: 420, h: 300, open: 'about', cls: 'e-portal', say: 'open about ↗',
-      body: `<div class="e-portal-frame"><div class="e-portal-ring"><img class="e-portal-face" src="/assets/jawad-portrait.webp" alt="Jawad" draggable="false"><span class="e-portal-glare"></span></div></div>
+      body: `<div class="e-portal-frame"><div class="e-portal-ring"><img class="e-portal-face" src="/assets/jawad-portrait.webp" alt="Jawad" draggable="false" decoding="async"><span class="e-portal-glare"></span></div></div>
        <div class="e-portal-facts"><div class="e-portal-chip">based in<b>london</b></div><div class="e-portal-chip">age<b>15</b></div><div class="e-portal-chip">builds<b>good stuff</b></div></div>`,
       pvDetail: 'about',
       prev: pv('/about', `<div class="e-pv-row" style="align-items:center;"><div class="e-img e-portrait" style="width:72px;height:72px;"></div><div style="flex:1;">${bars(['100%', '80%', '62%'])}</div></div><div class="e-pv-row">${ghost('who', 'flex:1;height:46px;')}${ghost('how I work', 'flex:1;height:46px;')}</div>`),
@@ -389,7 +389,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       + '<div class="e-w1 e-wsticker" id="e-w1b" style="opacity:0"><b>DESIGN</b></div>'
       + '<div class="e-im" id="e-im">hi, i\'m</div>'
       + '<div class="e-im" id="e-im2" style="opacity:0">i also</div>'
-      + '<div class="e-hero-ring e-sticker" id="e-ring"><img src="/assets/jawad-hero.webp" alt="Jawad" draggable="false"><span class="e-ring-glare"></span></div>'
+      + '<div class="e-hero-ring e-sticker" id="e-ring"><img src="/assets/jawad-hero.webp" alt="Jawad" draggable="false" decoding="async" fetchpriority="high"><span class="e-ring-glare"></span></div>'
       + '</div>'
       + '<span class="e-loader-cue" id="e-cue">scroll</span>';
     stage.appendChild(loaderEl);
@@ -1073,7 +1073,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
         ${o.tag ? `<span class="e-tag">${o.tag}</span>` : ''}<div class="e-title" style="font-size:22px;">${o.title || ''}</div>${o.body || ''}</div>`;
       const inner = `<div class="e-dworld" id="e-dworld">
         <div class="e-about-core">
-          <div class="e-portal-ring e-portal-ring-xl"><img class="e-portal-face" src="/assets/jawad-hero.webp" alt="Jawad" draggable="false"><span class="e-portal-glare"></span></div>
+          <div class="e-portal-ring e-portal-ring-xl"><img class="e-portal-face" src="/assets/jawad-hero.webp" alt="Jawad" draggable="false" decoding="async"><span class="e-portal-glare"></span></div>
           <div class="e-title" style="font-size:30px;margin-top:14px;">Jawad</div><span class="e-tag">designer · engineer · 15 · london</span></div>
         ${orb({ tag: 'WHO', title: 'The short version', x: -360, y: -185, w: 280, h: 128, body: bars(['100%', '86%', '60%']) })}
         ${orb({ tag: 'HOW I WORK', title: 'One person, start to ship', x: 360, y: -185, w: 280, h: 128, body: bars(['100%', '78%']) })}

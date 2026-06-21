@@ -175,7 +175,7 @@ export default function Nav() {
         <div id="nav-row">
           <Link className="brand" href="/" aria-label="Home" data-cursor-say="Home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="brand-av" src="/assets/nav-memoji.webp" alt="Jawad" draggable={false} />
+            <img className="brand-av" src="/assets/nav-memoji.webp" alt="Jawad" draggable={false} decoding="async" />
           </Link>
 
           <div className="nav-links" data-cursor-path ref={linksRef}>

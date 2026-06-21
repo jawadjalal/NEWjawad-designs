@@ -746,4 +746,15 @@
     top: auto;
     padding-top: 8px;
   }
+  /* Phase 4 — comfortable touch targets (~44px) for the detail-sheet controls;
+     the desktop sizes (26px close, slim pill) are too small to tap reliably. */
+  .sc-detail .detail-chrome .close-x {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  .sc-detail .detail-chrome .back-pill {
+    padding: 11px 16px;
+    font-size: 13px;
+  }
 }

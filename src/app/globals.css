@@ -318,6 +318,19 @@ select:focus-visible,
   }
 }
 
+/* Phase 4 — mobile tap feel: drop the ~300ms tap delay and the grey tap-flash on
+   the persistent shell + detail-sheet controls, so touch interaction feels as
+   immediate as the desktop custom-cursor UI. touch-action: manipulation keeps
+   scrolling/pinch but removes the double-tap-zoom wait. */
+#nav a,
+#nav .brand,
+#nav .cta,
+.detail-chrome .back-pill,
+.detail-chrome .close-x {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* a one-time, dismissible hint about the click shortcuts (a11y: arrow keys
    + visible links are the primary path; this just surfaces the power move) */
 #nav-hint {
