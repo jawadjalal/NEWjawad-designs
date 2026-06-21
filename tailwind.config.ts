@@ -9,6 +9,17 @@ import type { Config } from 'tailwindcss';
 const config: Config = {
   content: ['./src/**/*.{ts,tsx,mdx}'],
   theme: {
+    // Breakpoints are the site's single source of truth for "when do we switch
+    // layouts". `md` (768px) MUST stay in sync with STACK_MQ in src/lib/motion.ts
+    // and the `@media (max-width: 768px)` blocks in the CSS — that's the width at
+    // which spatial canvases drop to a stacked scroll. `sm`/`lg` are here so new
+    // components can use sm:/lg: utilities instead of hand-written media queries.
+    screens: {
+      sm: '430px', // top of the phone range we target (iPhone Pro Max etc.)
+      md: '768px', // canvas stack / mobile-shell breakpoint (== STACK_MQ)
+      lg: '1024px', // small-laptop floor
+      xl: '1280px', // small-laptop ceiling
+    },
     extend: {
       colors: {
         paper: '#f4f3f0',

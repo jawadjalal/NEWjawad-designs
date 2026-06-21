@@ -43,6 +43,14 @@
   /* lighter chip/tier variant (homepage `.e-tier`) */
   --glass-bg-soft: linear-gradient(152deg, rgba(255, 255, 255, 0.55), rgba(235, 233, 228, 0.42));
   --glass-blur-soft: blur(7px) saturate(1.04);
+
+  /* Stacked (mobile) layout tokens — single source of truth for the spatial
+     canvases' vertical-scroll fallback (Responsive Phase 2). --stack-gutter is
+     the side padding: it eases from 18px on roomy phones down to 13px at ~320px
+     so a small phone keeps usable column width instead of collapsing. Every
+     stacked column/header references these so the rhythm is identical site-wide. */
+  --stack-gutter: clamp(13px, 4vw, 18px);
+  --stack-bottom: 120px; /* bottom clearance so content sits clear of the nav pill */
 }
 
 * {

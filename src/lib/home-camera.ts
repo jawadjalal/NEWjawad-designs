@@ -207,7 +207,9 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   const EASE = 'subtle';
   const FINE = (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer:fine)').matches);
   const mqCoarse = window.matchMedia('(pointer:coarse)');
-  const mqNarrow = window.matchMedia('(max-width: 760px)');
+  // 768px matches STACK_MQ (motion.ts) so the home camera falls back to native
+  // scroll at the *same* width as every other route — no 760/768 dead zone.
+  const mqNarrow = window.matchMedia('(max-width: 768px)');
   const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   function spatial() { return FINE && !mqCoarse.matches && !mqNarrow.matches; }
   const SETTLE_SCALE = 1.02;

@@ -586,6 +586,57 @@ are copied verbatim from it, so the material is identical.
 
 ---
 
+## Responsive overhaul — Phase 1 (foundation & consistency)
+
+Kicking off a full responsive pass (target devices: phones 320–430px and
+small laptops / resized desktop windows 1024–1280px). Phase 1 is the low-risk
+foundation the later phases build on.
+
+**Decisions:**
+- **One breakpoint, everywhere.** The home camera used to fall back to native
+  scroll at `760px` while every other route used `768px` (STACK_MQ) — an 8px
+  dead zone where routes disagreed. Unified the home camera (`home-camera.ts`)
+  and all `home.css` media queries to `768px`, matching the rest of the site.
+- **Single source of truth for breakpoints.** Added `screens` to
+  `tailwind.config.ts` (`md: 768px` == STACK_MQ) so future components can use
+  `sm:`/`md:`/`lg:` utilities instead of hand-written media queries. Note: CSS
+  custom properties can't be used inside `@media` conditions, so the literal
+  `768px` still has to be repeated in the CSS — the tailwind config + STACK_MQ
+  comment are the documented canonical values these literals must track.
+- **No more fixed-px overflow.** Cards that used hard pixel widths
+  (`.e-portal` 420px, `.e-poster` 480px, `.proc-step` 340px) now use
+  `min(<cap>, <vw>)` so they cap at the desired desktop size but shrink to fit
+  rather than overflowing a narrow phone.
+
+**Tradeoff:** overriding (not extending) Tailwind's `screens` drops the default
+`2xl` — intentional, since large-desktop is deprioritized for this pass.
+
+---
+
+## Responsive overhaul — Phase 2 (small-screen hardening, phones 320–430px)
+
+**Decisions:**
+- **Stacked-layout tokens (`--stack-gutter`, `--stack-bottom`).** The mobile
+  vertical-scroll fallback repeated `18px` side padding and a `132px`/`96px`
+  bottom clearance across five files with slightly different values. Promoted
+  both to `:root` tokens and threaded them through every stacked column + sticky
+  header (canvas, work, process, home). One place to tune the mobile rhythm, and
+  the home page now matches the canvas pages' nav clearance (was 96px → 120px).
+- **No padding collapse at 320px.** `--stack-gutter` is `clamp(13px, 4vw, 18px)`
+  — it stays 18px on roomy phones but eases to 13px at ~320px, recovering ~10px
+  of column width on the smallest devices so content no longer squeezes to ~284px.
+- **`overflow-wrap: break-word`** on stacked panels (`.sc-panel`, `.wb-panel`,
+  `.proc-step`, home `.e-panel`) so a long word or URL can't push a card past the
+  viewport edge and reintroduce horizontal scroll.
+
+**Left deliberately alone (flagged for on-device review):** the bottom nav pill's
+8.5px mobile labels. The pill's curve is fitted from live rects in JS
+(PathProgress), so resizing the labels risks the path math; it's safer to eyeball
+it on a real phone before touching it. No glass-parity work was needed — stacked
+panels already inherit the `--glass-*` material from their base rules.
+
+---
+
 ## Standalone /about + /trust pages (nav no longer dumps to the homepage hero)
 
 **Why:** clicking About/Trust in the bottom nav from another page routed to `/`

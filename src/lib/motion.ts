@@ -26,8 +26,8 @@ export function prefersReducedMotion(): boolean {
  * pinch-pan-zoom is rough on phones, so on those devices the canvas pages
  * present the same panels stacked and natively scrollable instead. This MUST
  * match the `@media` condition the canvas CSS uses, so the JS engine and the
- * layout agree on when to switch. (The home camera has its own equivalent gate
- * at 760px, ported with Direction E — see home-camera.ts `spatial()`.)
+ * layout agree on when to switch. The home camera uses the same 768px gate
+ * (see home-camera.ts `spatial()`), so every route flips at one width.
  */
 export const STACK_MQ = '(max-width: 768px), (pointer: coarse)';
 
