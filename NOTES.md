@@ -634,3 +634,33 @@ foundation the later phases build on.
 (PathProgress), so resizing the labels risks the path math; it's safer to eyeball
 it on a real phone before touching it. No glass-parity work was needed — stacked
 panels already inherit the `--glass-*` material from their base rules.
+
+---
+
+## Responsive overhaul — Phase 3 (small-laptop & live-resize behavior)
+
+**The bug:** the generic spatial-canvas engines (`createSpatialCanvas`,
+`createWhiteboard`, `createProcessStrip`) read `prefersStackedCanvas()` exactly
+once at init to decide whether to wire pan/zoom/wheel. They had no media-change
+listener, so a *live* resize across 768px — narrowing a desktop window, snapping
+to half-screen on a small laptop, opening devtools, rotating a tablet — left the
+engine in the wrong mode (pan/zoom fighting the CSS stacked scroll, or a desktop
+canvas with no interactivity) until a full reload. This directly hurt the
+"resized desktop window / small laptop" case we're targeting.
+
+**Decision:** rebuild the engine at the React boundary rather than teaching each
+engine to hot-swap modes (which would mean unwinding half-built state in three
+different files). New hook `useStackedBreakpoint()` (`lib/use-stacked.ts`) tracks
+STACK_MQ and is fed into each component's `useGSAP({ dependencies: [stacked],
+revertOnUpdate: true })`. When the breakpoint flips, useGSAP runs the existing
+cleanup (engine.destroy + clear injected HTML) and re-runs the builder, so the
+engine comes back up in the correct mode from a clean slate.
+
+**Why not the home camera too:** `createHomeCamera` already has its own
+resize + media-change relayout (home-camera.ts), so it adapts in place; routing
+it through the hook would risk regressing its bespoke intro/loader. Left as-is.
+
+**Centering check:** the canvas transform is applied about the element centre
+with px/py = 0, so the composition stays centred at any viewport width — no
+dead-space/clipping fix was needed in the 1024–1280 band; resize already
+re-draws the connector wires (spatial-canvas onResize).

@@ -17,6 +17,7 @@
 import { useRef } from 'react';
 import { useGSAP } from '@/lib/gsap';
 import { createSpatialCanvas, type SpatialCanvasOpts } from '@/lib/spatial-canvas';
+import { useStackedBreakpoint } from '@/lib/use-stacked';
 
 type Props = {
   /** Builds the full canvas markup (`.scase` + optional `.sc-detail`). */
@@ -31,6 +32,9 @@ type Props = {
 
 export default function SpatialCanvasPage({ sheet, detailFor, engineOpts, onMount }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  // Rebuild the engine when the viewport crosses 768px so a live resize switches
+  // cleanly between the pan/zoom canvas and the stacked scroll (Phase 3).
+  const stacked = useStackedBreakpoint();
 
   useGSAP(
     () => {
@@ -49,7 +53,7 @@ export default function SpatialCanvasPage({ sheet, detailFor, engineOpts, onMoun
         screen.innerHTML = '';
       };
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [stacked], revertOnUpdate: true },
   );
 
   return (

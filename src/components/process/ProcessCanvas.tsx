@@ -8,10 +8,13 @@
 import { useRef } from 'react';
 import { useGSAP } from '@/lib/gsap';
 import { createProcessStrip } from '@/lib/process-strip';
+import { useStackedBreakpoint } from '@/lib/use-stacked';
 import { sheetD, detailFor } from '@/lib/process-content';
 
 export default function ProcessCanvas() {
   const rootRef = useRef<HTMLDivElement>(null);
+  // Rebuild on a live 768px crossing so resize switches strip ↔ stack (Phase 3).
+  const stacked = useStackedBreakpoint();
 
   useGSAP(
     () => {
@@ -26,7 +29,7 @@ export default function ProcessCanvas() {
         screen.innerHTML = '';
       };
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [stacked], revertOnUpdate: true },
   );
 
   return (

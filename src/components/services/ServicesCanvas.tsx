@@ -14,10 +14,13 @@
 import { useRef } from 'react';
 import { useGSAP } from '@/lib/gsap';
 import { createSpatialCanvas } from '@/lib/spatial-canvas';
+import { useStackedBreakpoint } from '@/lib/use-stacked';
 import { sheetD, detailFor } from '@/lib/services-content';
 
 export default function ServicesCanvas() {
   const rootRef = useRef<HTMLDivElement>(null);
+  // Rebuild on a live 768px crossing so resize switches canvas ↔ stack (Phase 3).
+  const stacked = useStackedBreakpoint();
 
   useGSAP(
     () => {
@@ -32,7 +35,7 @@ export default function ServicesCanvas() {
         screen.innerHTML = '';
       };
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [stacked], revertOnUpdate: true },
   );
 
   return (

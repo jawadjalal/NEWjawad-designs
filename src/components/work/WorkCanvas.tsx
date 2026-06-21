@@ -11,11 +11,14 @@ import { useRef } from 'react';
 import { useTransitionRouter } from 'next-view-transitions';
 import { useGSAP } from '@/lib/gsap';
 import { createWhiteboard } from '@/lib/whiteboard';
+import { useStackedBreakpoint } from '@/lib/use-stacked';
 import { whiteboard } from '@/lib/work-content';
 
 export default function WorkCanvas() {
   const rootRef = useRef<HTMLDivElement>(null);
   const router = useTransitionRouter();
+  // Rebuild on a live 768px crossing so resize switches board ↔ stack (Phase 3).
+  const stacked = useStackedBreakpoint();
 
   useGSAP(
     () => {
@@ -30,7 +33,7 @@ export default function WorkCanvas() {
         host.innerHTML = '';
       };
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [stacked], revertOnUpdate: true },
   );
 
   return (
