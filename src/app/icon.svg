@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Favicon (Phase 5c) — built from the brand tokens: paper tile, ink "J"
-       drawn as a pen stroke, the burnt-orange accent as the tittle dot.
-       App Router serves this as the site favicon automatically. -->
-  <rect x="1.5" y="1.5" width="29" height="29" rx="7" fill="#f4f3f0" stroke="#2c2c2a" stroke-width="2"/>
-  <path d="M13 8 H22.5" fill="none" stroke="#2c2c2a" stroke-width="3.2" stroke-linecap="round"/>
-  <path d="M19.4 8 V19 C19.4 23.6 13.2 24.8 10 20.6" fill="none" stroke="#2c2c2a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="23.4" cy="8" r="2.4" fill="#d2502f"/>
-</svg>

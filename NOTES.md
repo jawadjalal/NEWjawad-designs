@@ -727,3 +727,38 @@ a container query would resolve to the same thing as the viewport query it'd
 replace — pure complexity with no behavioural gain (no premature abstraction).
 Instead spent the budget on real touch targets: the sheet's close (26px) and
 back controls were sub-44px, now ~44px on the touch/stacked breakpoint.
+
+---
+
+## SEO / GEO pass (name-search ranking)
+
+Goal: rank for "jawad designs / jawad jalal / jawad jalal designs" and make
+link/AI-summary previews look right. Decisions + tradeoffs:
+
+- **Canonical domain → `https://jawadj.design`** (centralised in `lib/seo.ts`).
+  `jawad.design` was taken; the new domain goes live shortly. Everything
+  (canonical tags, sitemap, robots `host`, OG URLs, JSON-LD) derives from this
+  one constant — change it there and the whole site follows.
+- **Open Graph / Twitter image = the real hero.** Rather than a synthetic card,
+  `app/opengraph-image.png` (+ `twitter-image.png`) is a 1200×630 screenshot of
+  the homepage's "i also DESIGN" intro climax, captured with the dev tooling
+  (Puppeteer drives `animateHeroTo(1)` → Sharp crops to 1200×630). Re-run via
+  the throwaway script pattern if the hero changes; it's a committed static PNG.
+- **Favicon = the nav memoji.** Removed the old hand-drawn "J" `icon.svg`;
+  `app/icon.png` + `apple-icon.png` (and `public/icon-{192,512}.png` for the
+  manifest) are the memoji on a paper-token rounded badge, built with Sharp.
+- **Per-route metadata via passthrough server layouts.** The page components are
+  all `'use client'` and so can't export `metadata`. Instead each route folder
+  got a tiny server `layout.tsx` that exports a unique title/description/
+  canonical (`pageMeta()` helper) and just returns `children` — zero DOM, zero
+  change to the client pages, no regression risk. `work/[slug]` uses
+  `generateMetadata` to title each case study.
+- **JSON-LD (`components/seo/JsonLd.tsx`)** — Person + WebSite + ProfilePage in
+  one `@graph`, cross-linked by `@id`, with `sameAs` to the real socials
+  (X/TikTok/YouTube `@jawadmakes`, LinkedIn `jawad-jalal-designs`, IG
+  `j.awadjalal`). This is the main lever for getting Google to treat "Jawad
+  Jalal" as one entity. It's the consistency across these surfaces that matters.
+- **Known inconsistency (left for review):** the Contact canvas still shows
+  `@jawad.design` (IG) + a Behance card + `hi@jawad.design`. Those don't match
+  the real handles / new domain and Behance doesn't exist yet — flagged as a
+  follow-up rather than silently rewriting visible brand copy.
