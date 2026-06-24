@@ -107,10 +107,20 @@
   background-image:repeating-linear-gradient(0deg,transparent 0 29px,rgba(255,255,255,.05) 29px 30px),
   repeating-linear-gradient(90deg,transparent 0 29px,rgba(255,255,255,.05) 29px 30px);}
 .e-contact-core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:22px;width:min(560px,84vw);text-align:center;pointer-events:none;}
-.e-form{display:flex;flex-direction:column;gap:12px;width:100%;}
+/* the form re-enables pointer-events (the contact core is none) so its real
+   inputs / button / email link can be focused, typed in, and clicked. */
+.e-form{display:flex;flex-direction:column;gap:12px;width:100%;pointer-events:auto;}
+.e-contact-core .e-slab-base a{pointer-events:auto;}
 .e-field{min-height:46px;border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.05);display:flex;align-items:center;padding:13px 14px;font-family:var(--mono);font-size:12px;color:rgba(244,243,240,.5);text-align:left;}
 .e-field.tall{min-height:96px;align-items:flex-start;}
+/* real <input>/<textarea> reuse the .e-field box; strip native chrome and
+   brighten typed text (the dim colour above stays as the placeholder). */
+input.e-field,textarea.e-field{display:block;width:100%;box-sizing:border-box;appearance:none;-webkit-appearance:none;outline:none;color:#f4f3f0;resize:none;line-height:1.5;}
+input.e-field::placeholder,textarea.e-field::placeholder{color:rgba(244,243,240,.5);}
+input.e-field:focus,textarea.e-field:focus{border-color:rgba(244,243,240,.55);background:rgba(255,255,255,.09);}
 .e-detail-dark .e-cta.primary{background:#f4f3f0;color:#141310;border-color:#f4f3f0;}
+/* the Send button is a real <button> now — clear native chrome, inherit font */
+button.e-cta{font:inherit;cursor:inherit;appearance:none;-webkit-appearance:none;}
 .bar{height:9px;background:var(--fill);border-radius:2px;}
 .e-bars{display:flex;flex-direction:column;gap:7px;}
 .e-img{background:repeating-linear-gradient(45deg,var(--hatch) 0 7px,transparent 7px 14px);border:1.5px solid var(--line);border-radius:4px;}

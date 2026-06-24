@@ -554,3 +554,35 @@ pages still exist and are still reachable by clicking the on-canvas panels (that
 section. Verified end-to-end (scripts/_verify-navsection.mjs): same-page travel,
 About travels without opening its detail, and cross-page `/work` + Process lands
 on home section 2, all without leaving `/`.
+
+### Refinement — nav links are page-aware; dark contact section gets a real form
+
+Follow-up to the previous entry. Two adjustments to how the navbar behaves, plus
+the homepage contact section becoming interactive.
+
+**Nav links are now context-aware.** On the **homepage** a link still travels the
+camera to its section. On any **other page** a link navigates to that link's
+standalone page (`/work`, `/services`, …). About + Trust have no page of their
+own, so off-home they route home and travel to the section (sections 3 / 4). Each
+`LINKS` entry carries `section` + optional `route`; the click handler
+preventDefaults + travels only when `onHome || !route`, otherwise it lets the
+`<Link href={route}>` route normally. The CTA follows the same rule (ORDER →
+section 6 on home / `/contact` off-home). This keeps the standalone pages
+reachable again from the nav while preserving the in-page section travel on home.
+
+**Contact section cursor is white.** The open contact detail canvas is dark
+(`.e-detail-dark`), so the custom cursor now inverts to paper-white there (added
+`.e-detail-dark` to the cursor's invert selector, alongside `.cta`/`.e-slab`).
+The `/contact` *page* is light paper, so it deliberately keeps the dark ink
+cursor — a white cursor would be invisible there (confirmed with the user).
+
+**Contact section form is inputable.** The homepage contact form fields were
+static `<div class="e-field">` placeholders. They're now real `<input>` /
+`<textarea>` (reusing the `.e-field` box, native chrome stripped, typed text
+brightened to `#f4f3f0` with the dim colour kept as the placeholder), inside a
+`<form>`. Two things blocked interaction and are fixed: (1) `.e-contact-core` is
+`pointer-events:none`, so `.e-form` (and the email link) now re-enable
+`pointer-events:auto`; (2) the nested detail-canvas drag handler began a pan on
+any pointerdown — it now skips `input,textarea,button,a` so a click focuses the
+field instead of dragging the canvas. Verified end-to-end in
+scripts/_verify-navsection.mjs (click-to-focus-and-type, cursor invert on/off).

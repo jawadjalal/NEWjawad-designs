@@ -14,20 +14,22 @@ import { Link, useTransitionRouter } from 'next-view-transitions';
 import PathProgress from './PathProgress';
 import { useStore } from '@/lib/store';
 
-type NavLink = { label: string; section: number };
+type NavLink = { label: string; section: number; route?: string };
 
-// 7 nodes in curve order. Their index is the homepage section index (the home
+// 7 nodes in curve order. Each maps to a homepage section index (the home
 // camera's SECTIONS are in this exact order: Work · Services · Process · About ·
-// Trust · Pricing · Contact). Clicking a link travels the camera to that
-// section rather than routing to a standalone page.
+// Trust · Pricing · Contact) and, where one exists, to a standalone page route.
+// Behaviour depends on where you are: ON the homepage a link travels the camera
+// to its section; on any OTHER page a link goes to its page (About/Trust have no
+// page, so they route home and travel to the section instead).
 const LINKS: NavLink[] = [
-  { label: 'Work', section: 0 },
-  { label: 'Services', section: 1 },
-  { label: 'Process', section: 2 },
+  { label: 'Work', section: 0, route: '/work' },
+  { label: 'Services', section: 1, route: '/services' },
+  { label: 'Process', section: 2, route: '/process' },
   { label: 'About', section: 3 },
   { label: 'Trust', section: 4 },
-  { label: 'Pricing', section: 5 },
-  { label: 'Contact', section: 6 },
+  { label: 'Pricing', section: 5, route: '/pricing' },
+  { label: 'Contact', section: 6, route: '/contact' },
 ];
 
 // distinct routes in nav order, for arrow-key / click stepping
@@ -50,15 +52,17 @@ export default function Nav() {
 
   const onHome = pathname === '/';
 
-  // CTA flips on the contact page, exactly like the prototype's updateCTA. Like
-  // the links, it now travels to a homepage section instead of a page: ORDER →
-  // the Contact slab (6); on the contact page, "See the work" → Work (0).
+  // CTA flips on the contact page, exactly like the prototype's updateCTA.
+  // Follows the same on-home-vs-elsewhere rule as the links (see goToSection):
+  // ORDER → Contact (section 6 / the /contact page); on /contact, "See the
+  // work" → Work (section 0 / the /work page).
   const onContact = pathname.startsWith('/contact');
-  const cta = onContact ? { label: 'See the work →', section: 0 } : { label: 'ORDER →', section: 6 };
+  const cta = onContact ? { label: 'See the work →', section: 0, route: '/work' } : { label: 'ORDER →', section: 6, route: '/contact' };
 
   // Travel the home camera to a section. On the homepage we call the live
   // camera directly; from any other page we park the target and route home,
-  // where <HomeCamera/> picks it up on mount and glides there.
+  // where <HomeCamera/> picks it up on mount and glides there. (This second
+  // branch is what About/Trust use off-home — they have no page of their own.)
   const goToSection = useCallback(
     (i: number) => {
       const { cameraGoto, requestSection } = useStore.getState();
@@ -170,16 +174,20 @@ export default function Nav() {
           <div className="nav-links" data-cursor-path ref={linksRef}>
             <svg className="nav-curve" aria-hidden="true" />
             {LINKS.map((l, i) => (
-              // Still a Link to "/" (so middle-click / open-in-new-tab land on
-              // home, and the rendered <a> keeps the curve markup PathProgress
-              // measures), but onClick preventDefaults and travels in-place.
+              // href points at the link's real destination (its page, or "/" for
+              // the page-less About/Trust) so middle-click / open-in-new-tab work
+              // and the rendered <a> keeps the curve markup PathProgress measures.
+              // On the homepage (or for page-less links) we preventDefault and
+              // travel the camera; on a sub-page we let the <Link> route normally.
               <Link
                 key={`${l.label}-${i}`}
-                href="/"
+                href={l.route ?? '/'}
                 data-go={l.label.toLowerCase()}
                 onClick={(e) => {
-                  e.preventDefault();
-                  goToSection(l.section);
+                  if (onHome || !l.route) {
+                    e.preventDefault();
+                    goToSection(l.section);
+                  }
                 }}
               >
                 <span className="lbl">{l.label}</span>
@@ -189,10 +197,12 @@ export default function Nav() {
 
           <Link
             className="cta"
-            href="/"
+            href={cta.route}
             onClick={(e) => {
-              e.preventDefault();
-              goToSection(cta.section);
+              if (onHome) {
+                e.preventDefault();
+                goToSection(cta.section);
+              }
             }}
           >
             <span className="cta-lbl">{cta.label}</span>

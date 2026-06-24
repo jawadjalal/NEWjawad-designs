@@ -1094,14 +1094,20 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       return chrome('Trust — the proof behind the line', inner);
     }
     if (id === 'contact') {
-      const field = (label: string, tall?: boolean) => `<div class="e-field${tall ? ' tall' : ''}">${label}</div>`;
+      // Real, focusable form controls (were static <div>s). They reuse the
+      // .e-field box styling; .e-form re-enables pointer-events (the core is
+      // pointer-events:none) and the detail-canvas drag handler skips them.
+      const field = (label: string, tall?: boolean, type = 'text') =>
+        tall
+          ? `<textarea class="e-field tall" rows="3" placeholder="${label}" aria-label="${label}"></textarea>`
+          : `<input class="e-field" type="${type}" placeholder="${label}" aria-label="${label}">`;
       const inner = `<div class="e-dworld" id="e-dworld">
         <div class="e-contact-core">
           <div class="e-slab-head" data-matchcut style="font-size:clamp(40px,6vw,68px);">Your move.</div>
-          <div class="e-form">
-            ${field('your name')}${field('email')}${field('what do you want to build?', true)}
-            <div class="e-cta primary" style="align-self:center;margin-top:2px;pointer-events:auto;">Send it ▸</div>
-          </div>
+          <form class="e-form" novalidate>
+            ${field('your name')}${field('email', false, 'email')}${field('what do you want to build?', true)}
+            <button type="button" class="e-cta primary" style="align-self:center;margin-top:2px;pointer-events:auto;">Send it ▸</button>
+          </form>
           <div class="e-slab-base"><a href="mailto:hijawadjalal@gmail.com">hijawadjalal@gmail.com</a></div>
         </div>
       </div>`;
@@ -1117,7 +1123,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   function initDetailCanvas() {
     const wrap = detail.querySelector('#e-dwrap') as HTMLElement | null, dw = detail.querySelector('#e-dworld') as HTMLElement | null; if (!wrap || !dw) return;
     dscale = 0.82; dx = 0; dy = 0; const apply = () => { dw.style.transform = `translate(-50%,-50%) translate(${dx}px,${dy}px) scale(${dscale})`; }; apply();
-    wrap.onpointerdown = (e) => { if ((e.target as HTMLElement).closest('.e-dctrls')) return; ddrag = true; wrap.classList.add('grabbing'); dsx = e.clientX; dsy = e.clientY; dox = dx; doy = dy; try { wrap.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ } };
+    wrap.onpointerdown = (e) => { if ((e.target as HTMLElement).closest('.e-dctrls,input,textarea,button,a')) return; ddrag = true; wrap.classList.add('grabbing'); dsx = e.clientX; dsy = e.clientY; dox = dx; doy = dy; try { wrap.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ } };
     wrap.onpointermove = (e) => { if (!ddrag) return; dx = dox + (e.clientX - dsx); dy = doy + (e.clientY - dsy); apply(); };
     wrap.onpointerup = () => { ddrag = false; wrap.classList.remove('grabbing'); };
     wrap.onwheel = (e) => { e.preventDefault(); dscale = Math.min(1.5, Math.max(0.4, dscale - e.deltaY * 0.0012)); apply(); };

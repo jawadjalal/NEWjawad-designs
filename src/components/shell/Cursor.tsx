@@ -142,7 +142,9 @@ export default function Cursor() {
       const open = t.closest && t.closest(OPEN_SEL);
       const grab = t.closest && t.closest('.jawad-pg-grab');
       el.classList.remove('grab', 'open');
-      el.classList.toggle('inv', !!(t.closest && t.closest('.cta,.e-slab,[data-cursor-invert]')));
+      // Invert to paper-white over dark surfaces: the CTA pill, the home
+      // contact slab, and the open dark contact detail canvas (.e-detail-dark).
+      el.classList.toggle('inv', !!(t.closest && t.closest('.cta,.e-slab,.e-detail-dark,[data-cursor-invert]')));
 
       const sayEl = t.closest && (t.closest('[data-cursor-say]') as HTMLElement | null);
       if (sayEl) {
