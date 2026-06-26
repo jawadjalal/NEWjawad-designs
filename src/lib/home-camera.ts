@@ -338,10 +338,19 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     const PT = (fn: () => void, ms: number) => { const id = window.setTimeout(() => { if (alive || fn === finish) fn(); }, ms); localTimers.push(id); timers.add(id); return id; };
     function finish() { if (preEl) { preEl.remove(); preEl = null; } }
     function done() { if (!alive) return; alive = false; localTimers.forEach(clearTimeout); preEl!.classList.add('gone'); T(finish, 600); }
-    on(preEl, 'pointerdown', done);
-    on(preEl, 'wheel', done, { passive: true });
-    on(preEl, 'touchstart', done, { passive: true });
-    on(preEl, 'keydown', () => { done(); });
+    // Minimum-display window so the click-hint can't be killed by the user's
+    // first scroll (or a stray trackpad event) before it's been seen — the
+    // reported "the left/right-click animation at the beginning disappears". By
+    // ~700ms the mouse has appeared and "left click" has typed + flashed its
+    // button, so the recommendation reads; after that, any input skips it.
+    // Anchored at append (here), not at engine build, so it spans the gap
+    // between the hint appearing and the user reacting.
+    const shownAt = performance.now();
+    const userDone = () => { if (performance.now() - shownAt < 700) return; done(); };
+    on(preEl, 'pointerdown', userDone);
+    on(preEl, 'wheel', userDone, { passive: true });
+    on(preEl, 'touchstart', userDone, { passive: true });
+    on(preEl, 'keydown', userDone);
     try { sessionStorage.setItem('jawad-preloader', '1'); } catch (_) { /* ignore */ }
 
     if (mobile) { PT(done, 1700); return; }
@@ -349,7 +358,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     const mouse = preEl.querySelector('#e-pl-mouse') as HTMLElement | null;
     const t1 = preEl.querySelector('.t1') as HTMLElement, t2 = preEl.querySelector('.t2') as HTMLElement;
     const L1 = 'left click to go backward, right click to go forward';
-    const L2 = 'on mobile? scroll';
+    const L2 = 'or just scroll — your call';
     const left = mouse && mouse.querySelector('.pm-left'), right = mouse && mouse.querySelector('.pm-right');
     const flash = (el: Element | null) => { if (!el || !alive) return; el.classList.add('on'); PT(() => el.classList.remove('on'), 240); };
     const SP = 29;
@@ -488,7 +497,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     };
     addTick(step);
   }
-  function updateCue() { const c = loaderEl && loaderEl.querySelector('#e-cue'); if (c) c.textContent = heroHP > 0.985 ? 'scroll again to enter ↓' : 'scroll ↓'; }
+  function updateCue() { const c = loaderEl && loaderEl.querySelector('#e-cue'); if (c) c.textContent = heroHP > 0.985 ? 'keep scrolling to enter ↓' : 'scroll to explore ↓'; }
   /* slow perpetual orbit once state 2 is reached; dt-based so it's frame-rate independent */
   let idleSpinTicking = false, idleSpinLast = 0;
   function startIdleSpin() {
@@ -529,6 +538,15 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     startIdleSpin();
     if (!loaderWheel) {
       let ty = 0;
+      // Once the word-swap completes (heroHP=1), keep accumulating downward
+      // scroll; a short extra push slides into the canvas. This replaces the old
+      // `(now - heroEndAt) > 500ms` gate, which a *continuous* scroll could never
+      // satisfy — every wheel notch landed <500ms after the last, so the gate
+      // never opened and users got stuck at the climax and fell back to
+      // right-click. Now one unbroken downward scroll carries you straight in;
+      // the left/right-click shortcuts stay optional, never required.
+      let exitPush = 0;
+      const HERO_EXIT = 260; // ~a few wheel notches / a short trackpad flick past the end
       loaderWheel = (e: any) => {
         if (e && e.cancelable) e.preventDefault();
         let dy = e.deltaY || 0;
@@ -538,8 +556,12 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
         heroDir = dy < 0 ? -1 : 1;
         heroHP = Math.max(0, Math.min(1, heroHP + dy * 0.00098));
         renderHero(heroHP); updateCue();
-        if (heroHP >= 1 && prev < 1) { heroEndAt = performance.now(); startIdleSpin(); }
-        else if (heroHP >= 1 && dy > 0 && heroEndAt && (performance.now() - heroEndAt) > 500) { dismissLoader(); }
+        if (heroHP >= 1) {
+          if (prev < 1) { heroEndAt = performance.now(); startIdleSpin(); exitPush = 0; }
+          if (dy > 0) { exitPush += dy; if (exitPush > HERO_EXIT) dismissLoader(); }
+        } else if (dy < 0) {
+          exitPush = 0; // scrolled back up before the end — reset the exit budget
+        }
       };
       on(loaderEl, 'wheel', loaderWheel, { passive: false });
       on(loaderEl, 'touchstart', (e: TouchEvent) => { if (e.touches && e.touches[0]) ty = e.touches[0].clientY; }, { passive: true });

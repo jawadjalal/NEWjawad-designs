@@ -241,8 +241,11 @@ body.show-tier-badges .e-tier-badge{display:inline-flex;}
   animation:e-pulse 1.6s ease-in-out infinite;}
 @keyframes e-pulse{0%,100%{opacity:.25;}50%{opacity:1;}}
 .e-hero2{position:absolute;inset:0;z-index:3;transform-origin:center;}
+/* Ring sizes off height, but capped by width too (min(vh,vw)) so on a
+   wide-but-short laptop it can't swell past the column it shares with the
+   wordmark. Big screens are height-bound exactly as before. */
 .e-hero2 .e-hero-ring{position:absolute;left:50%;top:50%;z-index:4;
-  width:clamp(380px,57.5vh,575px);height:clamp(380px,57.5vh,575px);border-radius:50%;overflow:hidden;
+  width:clamp(320px,min(57.5vh,42vw),575px);height:clamp(320px,min(57.5vh,42vw),575px);border-radius:50%;overflow:hidden;
   border:10px solid #fff;background:#fff;box-shadow:0 18px 40px rgba(0,0,0,.22);}
 .e-hero2 .e-hero-ring img{width:100%;height:100%;object-fit:cover;object-position:58% 28%;display:block;transform:scale(1.18);transform-origin:58% 28%;}
 .e-ring-glare{position:absolute;inset:0;z-index:2;border-radius:50%;pointer-events:none;overflow:hidden;
@@ -254,12 +257,17 @@ body.show-tier-badges .e-tier-badge{display:inline-flex;}
 .e-wsticker{position:absolute;left:50%;top:50%;z-index:2;font-family:var(--font-bungee),sans-serif;
   font-weight:800;color:#1a1a1a;white-space:nowrap;line-height:.92;letter-spacing:-.5px;pointer-events:none;
   text-shadow:3px 0 0 #fff,-3px 0 0 #fff,0 3px 0 #fff,0 -3px 0 #fff,2.2px 2.2px 0 #fff,-2.2px 2.2px 0 #fff,2.2px -2.2px 0 #fff,-2.2px -2.2px 0 #fff,0 9px 16px rgba(0,0,0,.18);}
-.e-w1{font-size:clamp(154px,26.4vw,528px);text-align:center;z-index:2;font-family:var(--font-bungee),sans-serif;letter-spacing:.01em;
+/* The wordmark was sized purely by viewport WIDTH, so on a wide-but-short
+   laptop (e.g. 1366×640) it dwarfed the height-sized ring and crowded the nav.
+   min(vw,vh) makes it shrink with height too, keeping JAWAD/DESIGN + ring
+   balanced at every aspect ratio; on tall/large screens vw still wins, so the
+   desktop look is unchanged. */
+.e-w1{font-size:clamp(120px,min(26.4vw,50vh),528px);text-align:center;z-index:2;font-family:var(--font-bungee),sans-serif;letter-spacing:.01em;
   text-shadow:3px 0 0 #fff,-3px 0 0 #fff,0 3px 0 #fff,0 -3px 0 #fff,
     1px 1px 0 #d9d7d1,2px 2px 0 #d0cec8,3px 3px 0 #c7c5bf,4px 4px 0 #bebcb6,5px 5px 0 #b5b3ad,6px 6px 0 #adaba5,7px 7px 0 #a4a29c,8px 8px 0 #9b9994,9px 9px 0 #939189,
     0 18px 28px rgba(0,0,0,.24);}
 .e-w1 b{display:block;}
-#e-w1b{font-size:clamp(132px,22.6vw,452px);}
+#e-w1b{font-size:clamp(104px,min(22.6vw,43vh),452px);}
 .e-im{position:absolute;left:50%;top:calc(50% - clamp(288px,38vh,378px));transform:translateX(-50%);z-index:6;
   font-family:var(--hand,'Caveat'),cursive;font-weight:600;font-size:clamp(20px,2.6vh,34px);letter-spacing:.04em;
   text-transform:lowercase;color:#2c2c2a;white-space:nowrap;pointer-events:none;

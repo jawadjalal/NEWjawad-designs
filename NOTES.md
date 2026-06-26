@@ -762,3 +762,56 @@ link/AI-summary previews look right. Decisions + tradeoffs:
   `@jawad.design` (IG) + a Behance card + `hi@jawad.design`. Those don't match
   the real handles / new domain and Behance doesn't exist yet — flagged as a
   follow-up rather than silently rewriting visible brand copy.
+
+---
+
+## Hero polish — scroll-through, small-laptop fit, click-hint that's actually seen
+
+Three reported problems on smaller laptops, all in the home brand loader: the
+hero felt broken, the left/right-click intro animation "disappeared", and you
+couldn't scroll past the hero without resorting to a right-click. Fixes (loader
+only — nothing in the canvas/panels was touched, so zero regression risk to the
+rest of the home camera or the secondary pages):
+
+**1. Scroll *carries you through* the hero (the headline fix).** The word-swap
+still plays as you scroll (`heroHP` 0→1), but the dismiss used to require
+`(now - heroEndAt) > 500ms` *after* hitting the climax. A **continuous** scroll
+never satisfied that — every wheel notch landed <500ms after the last — so the
+camera got stuck at the "DESIGN" climax and the only way in was right-click.
+That's exactly the "requires a right click which hurts UX" report. Replaced the
+time-gate with an **overscroll accumulator**: once at the climax, continued
+downward scroll adds up and slides into the canvas past a small threshold
+(`HERO_EXIT = 260`, ~a few wheel notches / a short trackpad flick). One unbroken
+scroll now flows straight in; a hard flick goes faster, a gentle scroll lingers
+on the climax — and the left/right-click shortcuts stay **optional**, never
+required (the "recommendation, not obligation" ask).
+
+**2. The wordmark now scales with height, not just width.** `.e-w1`/`#e-w1b`
+were sized purely in `vw`, while the portrait ring was sized in `vh`. On a
+wide-but-short laptop (e.g. 1366×640) the word dwarfed the ring and crowded the
+nav. Switched the wordmark to `min(vw, vh)` and capped the ring by `vw` too
+(`min(57.5vh, 42vw)`), so JAWAD/DESIGN + ring + orbiting logos stay balanced at
+every aspect ratio. **Big/tall screens are byte-for-byte unchanged** — `vw`
+still wins there, so 1920×1080 and the common 1366×768 render exactly as before;
+the height cap only engages on genuinely short viewports, which is where it was
+needed. (`renderHero` positions the logos off the live `ring.offsetWidth`, so it
+adapts to the smaller ring for free.)
+
+**3. The click-hint can't be killed before it's seen.** The preloader dismissed
+on the *first* input, so a stray trackpad event (or an eager first scroll) on
+appearance made the mouse + "left/right-click" animation vanish instantly — the
+"the animation disappears" report. Added a 700ms minimum-display window anchored
+at the hint's appearance (not engine build): by then the mouse has shown and
+"left click" has typed and flashed its button, so the recommendation reads;
+after that any input skips it as before. Also reworded its second line from
+"on mobile? scroll" to **"or just scroll — your call"**, so scrolling reads as a
+first-class option on desktop too (reinforcing that the click-nav is a
+recommendation). The full ~3s auto-play + auto-dismiss is unchanged.
+
+**Verification.** `npm run build` + `npm run lint` clean. Screenshotted at
+1024/1280/1366/1440/1920 widths and short (600–640px) heights with a forced
+fine-pointer (headless Chromium reports `pointer:none`, which no real laptop
+does, so it must be shimmed to exercise the desktop path at all): scroll-through
+dismiss confirmed at every size, the hero stays balanced on short screens and
+identical on large ones, and the click-hint survives an immediate wheel but
+dismisses after the grace.
