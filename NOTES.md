@@ -851,3 +851,41 @@ per-case-study colour worlds.
 - `--accent` is unchanged. The planned **accent-usage** pass (one deliberate hit
   per view) is held for a separate step — Phase 1 ships the warm neutrals alone for
   on-screen review first.
+
+---
+
+## Polish — accent-usage pass (stages 2a–2d)
+
+**Goal.** The warm-neutral colour pass (Phase 1, above) deliberately held back
+`--accent`. This pass spends it — *sparingly* — so each view carries exactly
+**one** meaningful orange hit. The brand accent (`--accent #d2502f`) becomes a
+wayfinding/seasoning tool, never decoration.
+
+- **2a · active nav node.** The bottom-nav curve's active-node marker (`.nc-tri`)
+  was the prototype's stock red `#e5484d` — a colour that lived nowhere else.
+  Aligned it to `var(--accent)` so the one node you're "on" is the same orange
+  site-wide. One token swap, every-page payoff.
+- **2b · primary CTA.** The `ORDER →` pill is dark glass with no warmth. Split the
+  arrow into its own `.cta-arrow` span and tinted it `--accent` **only** on the
+  primary action (a new `.cta-primary` class, absent on the contact page's
+  secondary "See the work →"). A 2px hover nudge (reduced-motion-guarded) makes it
+  feel directional. No accent on any other button — the eye goes to the one thing.
+- **2c · one focal marker per canvas.** Each spatial page has a hub panel
+  everything wires to. Marked it with a single accent detail: its number badge
+  (`.sc-focal > .sc-num { background: var(--accent) }`). Applied to the Services
+  anchor, the Contact form, and the case-study hero. Process already has its
+  accent progress bar; Pricing's hub is the popular tier (see 2d) — so each page
+  ends with exactly one focal accent, no stacking.
+- **2d · active/selected state.** The "most popular" pricing tier (`.pr-pop`) wore
+  the same near-white glass hairline as every other panel. Swapped that hairline
+  for a thin accent edge ring (`box-shadow: 0 0 0 1.5px var(--accent), …`), keeping
+  the white 3px border. Because the Edition is *also* the pricing hub, this ring
+  doubles as that page's focal marker (which is why 2c skips it there).
+
+**Tradeoffs / boundaries.**
+- The pre-existing `accent-zone` dotted outline and `cta-ring` dashed outline were
+  left untouched — they're subtle and already part of the ported design; this pass
+  *adds* deliberate accent rather than reworking what's there.
+- `.pop-flag` stays the dark ink pill (it mirrors the homepage `.e-tier-badge`),
+  per the Pricing note — the accent goes on the panel edge, not the badge.
+- To revert 2a, restore `fill: #e5484d` on `#nav .nav-curve .nc-tri`.

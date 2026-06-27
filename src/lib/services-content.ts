@@ -92,7 +92,7 @@ export function sheetD(): string {
   const anchor = scPanel({
     n: 1,
     tag: '① PHILOSOPHY · the offer',
-    cls: 'sc-hero sc-anchor accent-zone',
+    cls: 'sc-hero sc-anchor accent-zone sc-focal',
     x: 0,
     y: -244,
     w: 480,

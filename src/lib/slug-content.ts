@@ -38,7 +38,7 @@ export function sheetD(): string {
       <div class="sc-stat"><span class="sc-statnum">1</span><span class="lbl">solo</span></div></div>`;
   const twoThumbs = `<div class="sc-thumbs"><div class="img" style="flex:1;height:100%;"></div><div class="img" style="flex:1;height:100%;"></div></div>`;
   const panels: PanelOpts[] = [
-    { n: 1, tag: '① HERO', cls: 'sc-hero accent-zone', x: 0, y: -26, w: 248, h: 150, body: `<div class="sc-proj">weld</div><div class="bars" style="width:80%;margin-top:8px;">${bar('100%', 8)}${bar('60%', 8)}</div>`, cur: true },
+    { n: 1, tag: '① HERO', cls: 'sc-hero accent-zone sc-focal', x: 0, y: -26, w: 248, h: 150, body: `<div class="sc-proj">weld</div><div class="bars" style="width:80%;margin-top:8px;">${bar('100%', 8)}${bar('60%', 8)}</div>`, cur: true },
     { n: 2, tag: '② META', x: 308, y: -176, w: 212, h: 118, body: microMeta },
     { n: 3, tag: '③ PROBLEM', x: -318, y: -168, w: 214, h: 128, body: `<div class="bars" style="width:92%;">${bar('100%', 12)}${bar('78%', 12)}</div><div class="bars" style="width:80%;margin-top:8px;">${bar('100%', 7)}${bar('66%', 7)}</div>` },
     { n: 4, tag: '④ WHAT I BUILT', x: -330, y: 108, w: 206, h: 122, body: `<span class="solo-badge">built solo</span><div class="bars" style="width:88%;margin-top:9px;">${bar('100%', 7)}${bar('100%', 7)}${bar('54%', 7)}</div>` },

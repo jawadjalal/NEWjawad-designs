@@ -59,10 +59,13 @@ export default function Nav() {
   // CTA flips on the contact page, exactly like the prototype's updateCTA.
   // It follows the same home-vs-page rule as the links: ORDER → Contact
   // (section 6 / /contact); on the contact page, "See the work" → Work (0 / /work).
+  // The arrow is rendered as its own span so the primary CTA can tint just the
+  // arrow with the accent (see #nav .cta-primary .cta-arrow). Label text here
+  // carries no arrow glyph; the order/see-work split is the home-vs-page rule.
   const onContact = pathname.startsWith('/contact');
   const cta: NavLink = onContact
-    ? { label: 'See the work →', section: 0, route: '/work' }
-    : { label: 'ORDER →', section: 6, route: '/contact' };
+    ? { label: 'See the work', section: 0, route: '/work' }
+    : { label: 'ORDER', section: 6, route: '/contact' };
 
   // Resolve a nav target. On the homepage the nav explores the spatial canvas,
   // so we glide the live camera to the section. On any other page the nav acts
@@ -200,7 +203,10 @@ export default function Nav() {
           </div>
 
           <Link
-            className="cta"
+            // cta-primary marks the ORDER action (off the contact page) so only
+            // it gets the accent arrow — the contact-page "See the work" is the
+            // secondary variant and stays neutral.
+            className={`cta${onContact ? '' : ' cta-primary'}`}
             href={!onHome && cta.route ? cta.route : '/'}
             onClick={(e) => {
               e.preventDefault();
@@ -208,6 +214,7 @@ export default function Nav() {
             }}
           >
             <span className="cta-lbl">{cta.label}</span>
+            <span className="cta-arrow" aria-hidden="true">→</span>
           </Link>
         </div>
         {/* PathProgress draws + fills the curve inside .nav-links */}

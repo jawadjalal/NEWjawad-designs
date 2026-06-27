@@ -185,7 +185,10 @@ select:focus-visible,
   fill: var(--ink);
 }
 #nav .nav-curve .nc-tri {
-  fill: #e5484d;
+  /* the active-node marker — the site's single, meaningful orange anchor.
+     (Was the prototype's stock red #e5484d; aligned to the brand accent so
+     every page carries one coherent accent hit — see the accent-usage pass.) */
+  fill: var(--accent);
   opacity: 0;
   transition: opacity 0.18s;
 }
@@ -282,6 +285,28 @@ select:focus-visible,
   transform: translateY(0);
   box-shadow: inset 0 1.5px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 3px 9px rgba(0, 0, 0, 0.24);
+}
+/* The CTA arrow. On the PRIMARY action (the "ORDER →" pill) it carries the one
+   warm accent hit on this dark glass object — a quiet orange that draws the eye
+   to the single thing we want clicked. The secondary "See the work →" arrow
+   stays paper-white (no class), so only the primary action is seasoned. */
+#nav .cta-arrow {
+  font-weight: 800;
+  transition: transform 0.18s var(--ease-smooth), color 0.18s ease;
+}
+#nav .cta-primary .cta-arrow {
+  color: var(--accent);
+}
+#nav .cta-primary:hover .cta-arrow {
+  transform: translateX(2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  #nav .cta-arrow {
+    transition: color 0.18s ease;
+  }
+  #nav .cta-primary:hover .cta-arrow {
+    transform: none;
+  }
 }
 
 /* ============================================================

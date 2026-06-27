@@ -528,6 +528,16 @@
   outline-offset: -2px;
 }
 
+/* One focal marker per canvas: the hub panel — the one everything wires to —
+   wears the single accent hit on its number badge, so the focal point of each
+   spatial page reads instantly. Applied via `sc-focal` to the main-canvas hero
+   (Services anchor, Contact form, the case-study hero). Pricing's hub is the
+   "most popular" tier, which already carries its own accent edge (pricing.css),
+   and Process has its accent progress bar — so each page gets exactly one. */
+.sc-focal > .sc-num {
+  background: var(--accent);
+}
+
 /* ---------- shared nested-detail atoms ----------
    Used by every page's detail canvas (Pricing, Contact, …). The `pr-`
    prefix is historical (born on Pricing) but the rules are generic. */

@@ -94,10 +94,13 @@
   gap: 6px;
 }
 .canvas-page .pr-pop {
-  /* "most popular" tier gets the heavier (hover-weight) glass shadow
-     for emphasis, replacing the wireframe hard offset shadow */
+  /* "most popular" tier — the selected/recommended state. It keeps the heavier
+     (hover-weight) glass shadow for lift, and (accent pass 2d) swaps the glass
+     hairline for a thin accent edge ring, so the recommended tier — which is
+     also the pricing hub everything wires to — carries this page's one accent
+     hit. The near-white 3px border stays; the ring sits just outside it. */
   border-width: 3px;
-  box-shadow: var(--glass-shadow-hover);
+  box-shadow: 0 0 0 1.5px var(--accent), var(--glass-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 .canvas-page .pr-headbar {
   /* clean glass header bar (was a hatch texture) */

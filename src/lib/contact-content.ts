@@ -57,7 +57,7 @@ function scPanel(o: PanelOpts): string {
 
 export function sheetD(): string {
   // the FORM is the one focused panel you land on (centre, sc-hero); supporting cards orbit and open.
-  const formPanel = scPanel({ n: 1, tag: '① THE FORM · land here', cls: 'sc-hero cf-formpanel accent-zone', x: 0, y: 0, w: 404, h: 486, body: `<div class="cf-headline sm">${HEADLINE}</div>${form({ flags: false, big: true })}` });
+  const formPanel = scPanel({ n: 1, tag: '① THE FORM · land here', cls: 'sc-hero cf-formpanel accent-zone sc-focal', x: 0, y: 0, w: 404, h: 486, body: `<div class="cf-headline sm">${HEADLINE}</div>${form({ flags: false, big: true })}` });
   const socials = scPanel({ n: 2, tag: '② SOCIALS + DIRECT', cls: 'sc-clushead', open: 'socials', x: -418, y: -118, w: 262, h: 152, body: `<div class="clus-title">Find me</div><span class="lbl">Instagram · X · LinkedIn</span><span class="lbl" style="margin-top:5px;">${EMAIL}</span>` });
   const discord = scPanel({ n: 3, tag: '③ DISCORD', cls: 'sc-clushead', open: 'discord', x: 418, y: -118, w: 262, h: 152, body: `<div class="clus-title">My Discord server</div><span class="lbl">the studio’s community channel</span>` });
   const cal = scPanel({ n: 4, tag: '④ BOOK A CALL', cls: 'sc-clushead sc-cta', open: 'calendly', x: 0, y: 348, w: 300, h: 140, body: `<div class="clus-title">Book a call</div><span class="lbl">restyled Calendly · 15 min</span>` });
