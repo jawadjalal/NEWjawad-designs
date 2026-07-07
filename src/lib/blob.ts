@@ -47,12 +47,20 @@ export type BlobCtl = {
   stick(rect: DOMRect, x: number, y: number): void;
   /** Let go of a stuck target — tails pop home with a small elastic bounce. */
   release(): void;
+  /** Excite mood: swell + tails orbit out while hovering an openable. */
+  setExcite(on: boolean): void;
+  /** Drag mood: stretch along travel while the user pans a canvas/strip. */
+  setDragging(on: boolean): void;
+  /** Click mood: squash + rebound, synced with the sparkle press/ink splat. */
+  splat(): void;
   destroy(): void;
 };
 
 export function createBlob(root: HTMLElement, opts: { reduced: boolean }): BlobCtl {
   const { reduced } = opts;
   const tails = Array.from(root.querySelectorAll<SVGCircleElement>('.jb-tail'));
+  const goo = root.querySelector<SVGGElement>('.jb-goo')!;
+  const main = root.querySelector<SVGCircleElement>('.jb-main')!;
 
   // Outer follow — same rebuilt-quickTo pattern as Cursor's ensureQuick, so the
   // two stay in lockstep when the feel mode (or nav lock) changes duration.
@@ -112,6 +120,103 @@ export function createBlob(root: HTMLElement, opts: { reduced: boolean }): BlobC
     return { vx, vy, speed: Math.hypot(vx, vy) };
   }
 
+  // ---- moods (3c) -------------------------------------------------------
+  // Discrete states are plain gsap.to with overwrite:'auto' (a quickTo can't
+  // retarget its ease/duration per mood); only the continuous follow above
+  // stays quickTo. All moods no-op under reduced motion — one branch here at
+  // the API surface, not per-tween.
+
+  // Idle breathing: rests while you move/read, breathes only when *you* rest —
+  // the "reacts, doesn't perform" guardrail. Re-armed by every pointer event.
+  let breatheTween: gsap.core.Tween | null = null;
+  let idleT = 0;
+  function startBreathe() {
+    breatheTween = gsap.to(main, {
+      scale: 1.09,
+      transformOrigin: '50% 50%',
+      duration: 1.2,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      overwrite: 'auto',
+    });
+  }
+  function stopBreathe() {
+    if (!breatheTween) return;
+    breatheTween.kill();
+    breatheTween = null;
+    gsap.to(main, { scale: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
+  }
+  /** Any activity: settle the breath and re-arm the 800ms idle timer. */
+  function poke() {
+    if (reduced) return;
+    stopBreathe();
+    window.clearTimeout(idleT);
+    idleT = window.setTimeout(startBreathe, 800);
+  }
+
+  // Excite: swell over an openable, goo tails orbit out — a liquid halo around
+  // the sparkle's OPEN bloom instead of a second dead black mass behind it.
+  let excited = false;
+  function setExcite(on: boolean) {
+    if (reduced || on === excited) return;
+    excited = on;
+    gsap.to(goo, {
+      scale: on ? 1.28 : 1,
+      transformOrigin: '50% 50%',
+      duration: 0.2,
+      ease: on ? BOUNCE : 'power2.out',
+      overwrite: 'auto',
+    });
+    if (on) {
+      tailQuick = null; // external tweens overwrite the quickTos — rebuild lazily
+      tails.forEach((c, i) =>
+        gsap.to(c, {
+          x: i % 2 ? -8 : 7,
+          y: i % 2 ? 6 : -7,
+          duration: 0.25,
+          ease: BOUNCE,
+          overwrite: 'auto',
+        }),
+      );
+    } else {
+      tailPop({ x: 0, y: 0, duration: 0.4, ease: BOUNCE });
+    }
+  }
+
+  // Drag-stretch: while panning a canvas the goo elongates along travel and
+  // the tails stay parked (perf: one cheap stretch tween per move, nothing
+  // else re-rasterizing the filter during the pan). Release wobbles back.
+  let dragging = false;
+  function setDragging(on: boolean) {
+    if (reduced || on === dragging) return;
+    dragging = on;
+    if (on) {
+      tailPop({ x: 0, y: 0, duration: 0.2, ease: 'power2.out' });
+    } else {
+      gsap.to(goo, {
+        scaleX: 1,
+        scaleY: 1,
+        rotation: 0,
+        transformOrigin: '50% 50%',
+        duration: 0.5,
+        ease: BOUNCE,
+        overwrite: 'auto',
+      });
+    }
+  }
+
+  // Splat: squash + rebound on click, synced with the sparkle's press/spin and
+  // the existing ink splat (which is untouched — it lives in its own layer).
+  function splat() {
+    if (reduced) return;
+    poke();
+    gsap
+      .timeline()
+      .to(goo, { scale: 0.7, transformOrigin: '50% 50%', duration: 0.09, ease: 'power2.in', overwrite: 'auto' })
+      .to(goo, { scale: excited ? 1.28 : 1, duration: 0.4, ease: BOUNCE });
+  }
+
   function move(tx: number, ty: number, baseDur: number) {
     if (stuck) releaseInner(); // moved off a stick target without an explicit release
     ensure(baseDur);
@@ -120,8 +225,27 @@ export function createBlob(root: HTMLElement, opts: { reduced: boolean }): BlobC
     // Reduced motion: the body rides with the sparkle but the goo stays a
     // still, concentric blob — recolour (a static property) is kept, motion isn't.
     if (reduced || !tails.length) return;
+    poke();
 
     const { vx, vy, speed } = velocity(tx, ty);
+
+    if (dragging) {
+      // stretch along the travel direction; '_short' spins the shorter way
+      if (speed > 0.05) {
+        const s = Math.min(0.35, speed * 0.45);
+        gsap.to(goo, {
+          rotation: `${(Math.atan2(vy, vx) * 180) / Math.PI}_short`,
+          scaleX: 1 + s,
+          scaleY: 1 - s * 0.7,
+          transformOrigin: '50% 50%',
+          duration: 0.18,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      }
+      return; // tails stay parked during drags (perf contract)
+    }
+    if (excited) return; // tails are orbiting — don't fight them with trail offsets
 
     if (speed > FREEZE_V) {
       // Fast sweep (or a canvas pan under the pointer): park the tails once and
@@ -151,6 +275,7 @@ export function createBlob(root: HTMLElement, opts: { reduced: boolean }): BlobC
       move(tx, ty, STICK_BASE);
       return;
     }
+    poke();
     stuck = true;
     velocity(tx, ty); // keep the velocity history warm for release
 
@@ -193,8 +318,9 @@ export function createBlob(root: HTMLElement, opts: { reduced: boolean }): BlobC
   }
 
   function destroy() {
-    gsap.killTweensOf([root, ...tails]);
+    window.clearTimeout(idleT);
+    gsap.killTweensOf([root, goo, main, ...tails]);
   }
 
-  return { move, stick, release, destroy };
+  return { move, stick, release, setExcite, setDragging, splat, destroy };
 }

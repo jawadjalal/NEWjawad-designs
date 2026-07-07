@@ -38,6 +38,7 @@
    The `why` of the tricky bits is commented inline, as before.
    ============================================================ */
 import { gsap } from '@/lib/gsap';
+import { useStore } from '@/lib/store';
 
 /* logo set for the hero orbit + rails — inlined from extracted/brand-logos.js,
    with asset paths rebased to /assets (Next serves public/ at the root). */
@@ -1042,7 +1043,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   // Hide the persistent shell chrome inside the preview iframe so it reads as a
   // clean page screenshot (the prototype stripped its explorer chrome the same
   // way). Same-origin, so we can inject a <style>.
-  const PV_CHROME_CSS = '#nav,#nav-hint,#jawad-cursor{display:none!important;}'
+  const PV_CHROME_CSS = '#nav,#nav-hint,#jawad-cursor,#jawad-blob{display:none!important;}'
     + 'html,body{cursor:none!important;overflow:hidden!important;}';
   function mountPreview(panel: HTMLElement) {
     if (panel.dataset.pvdetail) { mountDetailPreview(panel); return; }
@@ -1172,9 +1173,10 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   function initDetailCanvas() {
     const wrap = detail.querySelector('#e-dwrap') as HTMLElement | null, dw = detail.querySelector('#e-dworld') as HTMLElement | null; if (!wrap || !dw) return;
     dscale = 0.82; dx = 0; dy = 0; const apply = () => { dw.style.transform = `translate(-50%,-50%) translate(${dx}px,${dy}px) scale(${dscale})`; }; apply();
-    wrap.onpointerdown = (e) => { if ((e.target as HTMLElement).closest('.e-dctrls')) return; ddrag = true; wrap.classList.add('grabbing'); dsx = e.clientX; dsy = e.clientY; dox = dx; doy = dy; try { wrap.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ } };
+    wrap.onpointerdown = (e) => { if ((e.target as HTMLElement).closest('.e-dctrls')) return; ddrag = true; wrap.classList.add('grabbing'); useStore.getState().setDragging(true, 'DRAG'); dsx = e.clientX; dsy = e.clientY; dox = dx; doy = dy; try { wrap.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ } };
     wrap.onpointermove = (e) => { if (!ddrag) return; dx = dox + (e.clientX - dsx); dy = doy + (e.clientY - dsy); apply(); };
-    wrap.onpointerup = () => { ddrag = false; wrap.classList.remove('grabbing'); };
+    wrap.onpointerup = () => { ddrag = false; wrap.classList.remove('grabbing'); useStore.getState().setDragging(false); };
+    wrap.onpointercancel = wrap.onpointerup;
     wrap.onwheel = (e) => { e.preventDefault(); dscale = Math.min(1.5, Math.max(0.4, dscale - e.deltaY * 0.0012)); apply(); };
     (wrap.querySelector('.e-dctrls') as HTMLElement).onclick = (e) => { const z = (e.target as HTMLElement).dataset.z; if (!z) return; if (z === 'in') dscale = Math.min(1.5, dscale + 0.15); if (z === 'out') dscale = Math.max(0.4, dscale - 0.15); if (z === 'home') { dscale = 0.82; dx = 0; dy = 0; } apply(); };
   }

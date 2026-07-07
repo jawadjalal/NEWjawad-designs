@@ -17,6 +17,7 @@
  */
 import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion, prefersStackedCanvas } from '@/lib/motion';
+import { useStore } from '@/lib/store';
 
 export type WhiteboardOpts = { onRoute?: (route: string) => void };
 export type WhiteboardController = { destroy: () => void };
@@ -98,6 +99,8 @@ export function createWhiteboard(root: HTMLElement, opts: WhiteboardOpts = {}): 
         if (Math.abs(pe.clientX - sx) + Math.abs(pe.clientY - sy) < PAN_TH) return;
         drag = true;
         wb.classList.add('grabbing');
+        // set at the pan-threshold crossing (not pointerdown) — a clean tap never drags
+        useStore.getState().setDragging(true, 'PAN');
         try {
           wb.setPointerCapture(pe.pointerId);
         } catch {
@@ -115,6 +118,7 @@ export function createWhiteboard(root: HTMLElement, opts: WhiteboardOpts = {}): 
       drag = false;
       downPanel = null;
       wb.classList.remove('grabbing');
+      useStore.getState().setDragging(false);
     };
     on(wb, 'pointerup', end);
     on(wb, 'pointercancel', end);

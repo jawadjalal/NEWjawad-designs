@@ -19,6 +19,7 @@
  */
 import { gsap } from '@/lib/gsap';
 import { prefersStackedCanvas } from '@/lib/motion';
+import { useStore } from '@/lib/store';
 
 export type SpatialCanvasOpts = {
   /** Returns the HTML for a panel's nested detail canvas, keyed by data-open. */
@@ -210,6 +211,8 @@ export function createSpatialCanvas(root: HTMLElement, opts: SpatialCanvasOpts):
         drag = true;
         moved = false;
         sc.classList.add('grabbing');
+        // cursor + blob read this per move — the shared "hands on the canvas" signal
+        useStore.getState().setDragging(true, 'PAN');
         sx = e.clientX;
         sy = e.clientY;
         ox = st.px;
@@ -237,11 +240,13 @@ export function createSpatialCanvas(root: HTMLElement, opts: SpatialCanvasOpts):
         drag = false;
         downPanel = null;
         sc.classList.remove('grabbing');
+        useStore.getState().setDragging(false);
       };
       on(sc, 'pointerup', end);
       on(sc, 'pointercancel', () => {
         drag = false;
         sc.classList.remove('grabbing');
+        useStore.getState().setDragging(false);
       });
       on(
         sc,

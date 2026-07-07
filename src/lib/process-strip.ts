@@ -11,6 +11,7 @@
  */
 import { createSpatialCanvas, type SpatialCanvasController } from '@/lib/spatial-canvas';
 import { prefersStackedCanvas } from '@/lib/motion';
+import { useStore } from '@/lib/store';
 
 export type ProcessStripOpts = { detailFor: (id: string) => string };
 export type ProcessStripController = { destroy: () => void };
@@ -86,6 +87,7 @@ export function createProcessStrip(root: HTMLElement, opts: ProcessStripOpts): P
         sx = pe.clientX;
         sl = scroller.scrollLeft;
         scroller.classList.add('grabbing');
+        useStore.getState().setDragging(true, 'DRAG');
         try {
           scroller.setPointerCapture(pe.pointerId);
         } catch {
@@ -102,6 +104,7 @@ export function createProcessStrip(root: HTMLElement, opts: ProcessStripOpts): P
       const endDrag = () => {
         drag = false;
         scroller.classList.remove('grabbing');
+        useStore.getState().setDragging(false);
       };
       on(scroller, 'pointerup', endDrag);
       on(scroller, 'pointercancel', endDrag);

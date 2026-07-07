@@ -21,6 +21,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import { createBlob } from '@/lib/blob';
 import { prefersReducedMotion } from '@/lib/motion';
+import { useStore } from '@/lib/store';
 
 const STAR = 'M0,-8 Q1.6,-1.6 8,0 Q1.6,1.6 0,8 Q-1.6,1.6 -8,0 Q-1.6,-1.6 0,-8 Z';
 const OPEN_SEL = '.openable,[data-open],.wb-panel.wb-weld,.e-panel';
@@ -135,18 +136,24 @@ export default function Cursor() {
       const t = e.target as Element;
       const w = window as unknown as { __jawadDragging?: boolean; __jawadDragLabel?: string };
 
-      // dragging (playground / canvas) takes over everything
-      if (w.__jawadDragging) {
+      // dragging (canvas pan / desk / strip) takes over everything. The store
+      // is the canonical signal (set by the canvas engines); the window global
+      // is kept as a legacy escape hatch for extracted/ prototype scripts.
+      const st = useStore.getState();
+      if (st.dragging || w.__jawadDragging) {
         el.classList.remove('open');
         el.classList.add('grab');
-        lbl.textContent = w.__jawadDragLabel || 'DRAG';
+        lbl.textContent = st.dragLabel || w.__jawadDragLabel || 'DRAG';
         ensureQuick(feelDur(feel()));
         xTo(tx);
         yTo(ty);
         rotTo(0);
+        blob.setExcite(false);
+        blob.setDragging(true);
         blob.move(tx, ty, feelDur(feel()));
         return;
       }
+      blob.setDragging(false);
 
       const open = t.closest && t.closest(OPEN_SEL);
       const grab = t.closest && t.closest('.jawad-pg-grab');
@@ -196,6 +203,7 @@ export default function Cursor() {
         // the blob rides the locked curve point too — left on the raw pointer
         // it would drift off the nav visual while the sparkle stays on it.
         // Precedence: nav lock > stick > free follow.
+        blob.setExcite(false);
         blob.move(lock.x, lock.y, 0.12);
       } else if (stick) {
         // sparkle keeps its normal follow; only the blob body snaps to the rim
@@ -203,6 +211,7 @@ export default function Cursor() {
         xTo(tx);
         yTo(ty);
         rotTo(0);
+        blob.setExcite(false);
         blob.stick(stick.getBoundingClientRect(), tx, ty);
       } else {
         ensureQuick(feelDur(feel()));
@@ -214,7 +223,9 @@ export default function Cursor() {
           yTo(ty);
         }
         rotTo(0);
-        // body chases the raw pointer (the sparkle alone drifts to magnets)
+        // body chases the raw pointer (the sparkle alone drifts to magnets);
+        // over an openable the goo swells around the sparkle's OPEN bloom
+        blob.setExcite(!!open);
         blob.move(tx, ty, feelDur(feel()));
       }
     };
@@ -235,6 +246,7 @@ export default function Cursor() {
       dirT.id = setTimeout(() => el.classList.remove('fwd', 'bwd'), 320);
       // ink splat: filled going forward, hollow ring going back
       inkSplat(e.clientX, e.clientY, e.button !== 2);
+      blob.splat(); // goo squash + rebound, synced with the press/spin
     };
     const onUp = () => el.classList.remove('press');
     const onLeave = () => {

@@ -990,3 +990,28 @@ sparkle's own magnetic feel mode is untouched (different bodies, different jobs)
 **Tune from 3a review:** layer opacity .85 → .78 (blob + bloomed OPEN star merged
 too heavy), tail smoothing slowed (0.34s+ power2.out) so mid-speed trailing reads
 liquid instead of twitchy.
+
+---
+
+## Blob mascot · 3c — moods + the dragging flag (store, not window global)
+
+**Bug fix first.** The cursor's DRAG takeover read `window.__jawadDragging`, but
+the writer was lost in the migration — nothing in `src/` ever set it, so panning
+a canvas never changed the cursor. The signal now lives in the Zustand store
+(`dragging` + `dragLabel`): typed, SSR-safe, read per-move via `getState()` with
+zero re-renders (booleans only flip on drag start/end). All four surfaces write it
+exactly where they toggle `.grabbing` — spatial canvas + whiteboard ('PAN'), home
+desk + process strip ('DRAG') — including pointercancel. The window global stays
+as a one-line legacy fallback read.
+
+**Moods (all GSAP, in blob.ts).** Idle breathing (main circle 1→1.09 sine, starts
+after 800ms of stillness, any activity rests it — the blob reacts, it doesn't
+perform) · excite over openables (goo swells 1.28 + tails orbit out, a liquid halo
+around the sparkle's OPEN bloom) · drag-stretch (goo elongates along pan velocity,
+tails parked for the filter-re-raster perf contract, springy wobble on release) ·
+click splat (squash 0.7 → back.out rebound, synced with the untouched ink splat).
+Discrete moods are `gsap.to(..., overwrite:'auto')`; only the continuous follow
+stays quickTo — and any externally-overwritten tail quickTos rebuild lazily.
+
+Also: bloom-preview iframes now hide `#jawad-blob` alongside `#jawad-cursor`
+(PV_CHROME_CSS) — a 3a oversight.

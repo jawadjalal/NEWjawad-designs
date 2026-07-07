@@ -30,6 +30,17 @@ type StoreState = {
   zoom: number;
   panX: number;
   panY: number;
+  /**
+   * True while the user is actively panning/dragging a surface (home desk,
+   * spatial canvas, work whiteboard, process strip). The canvas engines write
+   * it exactly where they toggle their local `.grabbing` class; the cursor +
+   * blob read it via getState() per pointermove (no re-render — booleans only
+   * change on drag start/end). Replaces the prototype's `__jawadDragging`
+   * window global, whose writer was lost in the migration.
+   */
+  dragging: boolean;
+  /** Cursor label while dragging ('PAN' | 'DRAG'). */
+  dragLabel: string | null;
 
   /** Jump to a section. Phase 2 will make this a GSAP glide. */
   goto: (i: number) => void;
@@ -37,6 +48,7 @@ type StoreState = {
   setScroll: (frac: number, idx?: number) => void;
   setMode: (mode: CameraMode) => void;
   setCanvas: (t: { zoom?: number; panX?: number; panY?: number }) => void;
+  setDragging: (on: boolean, label?: string) => void;
 
   /**
    * Bridge to the live home camera. <HomeCamera/> registers its section-travel
@@ -66,6 +78,8 @@ export const useStore = create<StoreState>((set, get) => ({
   zoom: 1,
   panX: 0,
   panY: 0,
+  dragging: false,
+  dragLabel: null,
   cameraGoto: null,
   pendingSection: null,
 
@@ -84,6 +98,7 @@ export const useStore = create<StoreState>((set, get) => ({
 
   setMode: (mode) => set({ mode }),
   setCanvas: (t) => set((s) => ({ ...s, ...t })),
+  setDragging: (on, label) => set({ dragging: on, dragLabel: on ? (label ?? 'DRAG') : null }),
 
   registerCamera: (goto) => set({ cameraGoto: goto }),
   requestSection: (i) => set({ pendingSection: clamp(Math.round(i), 0, SECTION_COUNT - 1) }),
