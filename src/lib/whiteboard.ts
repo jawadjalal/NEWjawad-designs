@@ -11,14 +11,28 @@
  * is identical. Under reduced motion the auto-cycle is skipped (the billboard
  * sits static) — hard rule #5.
  *
- * Migration touch: a clean tap (no drag) on a panel carrying data-slug opens
- * /work/[slug] via onRoute.
+ * Migration touch: a clean tap (no drag) on a panel opens its work — an
+ * in-site case study (data-slug → /work/[slug] via onRoute) or, for a shipped
+ * live page like bidframe, the real site in a new tab (data-href).
  */
 import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion, prefersStackedCanvas } from '@/lib/motion';
 
 export type WhiteboardOpts = { onRoute?: (route: string) => void };
 export type WhiteboardController = { destroy: () => void };
+
+// Panels are "openable" if they route in-site (data-slug) or link out (data-href).
+const OPENABLE = '.wb-panel[data-slug],.wb-panel[data-href]';
+function openPanel(panel: HTMLElement, opts: WhiteboardOpts) {
+  const href = panel.dataset.href;
+  if (href) {
+    // noopener/noreferrer: never hand the new tab a live window.opener handle.
+    window.open(href, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  const slug = panel.dataset.slug;
+  if (slug) opts.onRoute?.(`work/${slug}`);
+}
 
 export function createWhiteboard(root: HTMLElement, opts: WhiteboardOpts = {}): WhiteboardController {
   const cleanups: Array<() => void> = [];
@@ -45,9 +59,8 @@ export function createWhiteboard(root: HTMLElement, opts: WhiteboardOpts = {}): 
 
     if (stacked) {
       on(wb, 'click', (e) => {
-        const panel = (e.target as Element).closest<HTMLElement>('.wb-panel[data-slug]');
-        const slug = panel?.dataset.slug;
-        if (slug) opts.onRoute?.(`work/${slug}`);
+        const panel = (e.target as Element).closest<HTMLElement>(OPENABLE);
+        if (panel) openPanel(panel, opts);
       });
       return;
     }
@@ -76,7 +89,7 @@ export function createWhiteboard(root: HTMLElement, opts: WhiteboardOpts = {}): 
       sy = pe.clientY;
       ox = px;
       oy = py;
-      downPanel = (pe.target as Element).closest<HTMLElement>('.wb-panel[data-slug]');
+      downPanel = (pe.target as Element).closest<HTMLElement>(OPENABLE);
     });
     on(wb, 'pointermove', (e) => {
       const pe = e as PointerEvent;
@@ -96,11 +109,8 @@ export function createWhiteboard(root: HTMLElement, opts: WhiteboardOpts = {}): 
       apply();
     });
     const end = () => {
-      // a clean tap on a real-project panel opens its case study
-      if (pend && !drag && downPanel) {
-        const slug = downPanel.dataset.slug;
-        if (slug) opts.onRoute?.(`work/${slug}`);
-      }
+      // a clean tap on a real-project panel opens its work (case study or live site)
+      if (pend && !drag && downPanel) openPanel(downPanel, opts);
       pend = false;
       drag = false;
       downPanel = null;

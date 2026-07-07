@@ -11,6 +11,10 @@
  * /work/[slug] — the prototype's panels show an "open work" / "VIEW" cursor but
  * the standalone wireframe had no router; this realises that intent. Ghost
  * ("coming soon") panels stay inert. Image paths rebased to /uploads + /assets.
+ *
+ * bidframe is a shipped, live landing page rather than an in-site case study, so
+ * its panel carries `data-href` instead of `data-slug`: a clean tap opens the
+ * real site in a new tab (whiteboard.ts handles the href → external-open path).
  */
 
 type Proj = { id: string; src: string; name: string; cat: string; pos: string };
@@ -19,6 +23,9 @@ const PROJS: Proj[] = [
   { id: 'vizzbees', src: '/uploads/pasted-1781353449899-0.webp', name: 'VizzBees', cat: 'web · saas', pos: '50% 8%' },
   { id: 'kleoklaw', src: '/uploads/pasted-1781353513462-0.webp', name: 'KleoKlaw', cat: 'product · mobile', pos: '50% 5%' },
 ];
+// bidframe — a live landing page. Opens the real site (see wbExternal), not a
+// /work/[slug] case study, so it carries a href rather than a routable id.
+const BIDFRAME = { href: 'https://bidframe.org', src: '/assets/bidframe/hero.webp', name: 'Bidframe', cat: 'web · landing', pos: '50% 0%' };
 // Billboard cycles KleoKlaw → Weld → VizzBees
 const BB_PROJS: Proj[] = [
   { id: 'kleoklaw', src: '/uploads/pasted-1781353513462-0.webp', name: 'KleoKlaw', cat: 'product · mobile', pos: '50% 5%' },
@@ -33,7 +40,7 @@ const PANELS: Panel[] = [
   { type: 'vizzbees', x: 262, y: -232, w: 186, h: 132, r: -2 },
   { type: 'kleoklaw', x: -90, y: -272, w: 172, h: 128, r: 2 },
   { x: -504, y: 20, w: 150, h: 152, r: 3 },
-  { x: 318, y: -50, w: 192, h: 136, r: -2 },
+  { type: 'bidframe', x: 318, y: -50, w: 192, h: 136, r: -2 },
   { x: -348, y: 244, w: 172, h: 122, r: -3 },
   { x: -50, y: 308, w: 156, h: 140, r: 2 },
   { x: 222, y: 302, w: 164, h: 122, r: -2 },
@@ -80,10 +87,26 @@ function wbProj(p: Panel, proj: Proj): string {
   </div>`;
 }
 
+// A live-site panel: same card as wbProj but carries data-href (opens the real
+// site in a new tab) instead of data-slug, and shows a "live site ↗" cursor.
+function wbExternal(p: Panel, proj: typeof BIDFRAME): string {
+  return `<div class="wb-panel wb-proj wb-external" data-href="${proj.href}" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:8px;display:flex;flex-direction:column;gap:6px;border:2.5px solid rgba(255,255,255,.85);border-radius:7px;box-shadow:0 0 0 1px var(--line-soft),0 16px 38px rgba(0,0,0,.2);">
+    <div style="flex:1;min-height:0;border-radius:3px;overflow:hidden;">
+      <img src="${proj.src}" alt="${proj.name}" draggable="false" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:${proj.pos};display:block;"/>
+    </div>
+    <div style="flex:none;display:flex;align-items:baseline;gap:6px;padding:0 1px;">
+      <span class="lbl" style="font-family:var(--hand);font-size:14px;color:var(--ink);">${proj.name}</span>
+      <span class="lbl" style="color:var(--ink-soft);font-size:8px;text-transform:uppercase;letter-spacing:.08em;">${proj.cat}</span>
+    </div>
+    <span class="view-cur">live site ↗</span>
+  </div>`;
+}
+
 function wbPanel(p: Panel): string {
   if (p.type === 'bb') return wbBillboard(p);
   if (p.type === 'vizzbees') return wbProj(p, PROJS[0]);
   if (p.type === 'kleoklaw') return wbProj(p, PROJS[1]);
+  if (p.type === 'bidframe') return wbExternal(p, BIDFRAME);
   if (p.type === 'weld') {
     return `<div class="wb-panel wb-weld" data-slug="weld" style="${base(p)}box-sizing:border-box;background:var(--paper);padding:10px;display:flex;flex-direction:column;gap:8px;border:2.5px solid rgba(255,255,255,.85);border-radius:8px;box-shadow:0 0 0 1px var(--line-soft),0 20px 50px rgba(0,0,0,.22);" data-bb='${bbJSON()}'>
       <div class="bb-wrap" style="flex:1;min-height:0;border-radius:4px;overflow:hidden;">

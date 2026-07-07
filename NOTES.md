@@ -889,3 +889,21 @@ wayfinding/seasoning tool, never decoration.
 - `.pop-flag` stays the dark ink pill (it mirrors the homepage `.e-tier-badge`),
   per the Pricing note — the accent goes on the panel edge, not the badge.
 - To revert 2a, restore `fill: #e5484d` on `#nav .nav-curve .nc-tri`.
+
+---
+
+## Work board — add Bidframe (live landing page)
+
+**The choice.** Bidframe is a shipped landing page (bidframe.org), not an in-site
+case study, so its `/work` panel opens the real site in a new tab rather than a
+`/work/[slug]` write-up. It carries `data-href` instead of `data-slug`; the
+whiteboard engine's shared `openPanel()` opens `data-href` externally
+(`window.open(..., 'noopener,noreferrer')`) and falls back to `onRoute` for
+`data-slug`. One converted "coming soon" ghost (the right-side 318,−50 slot)
+becomes the panel; cursor reads "live site ↗" to signal the outbound click.
+
+**Tradeoffs.** Kept it off the billboard auto-cycle — that panel routes by
+`data-slug` internally, and Bidframe has no in-site slug (its case study isn't
+written). Thumbnail is the site's own OG hero (`/assets/bidframe/hero.webp`),
+which already matches the portfolio's grid-paper look. When a full Bidframe case
+study exists, swap `data-href` for a `data-slug` and drop it into the cycle.
