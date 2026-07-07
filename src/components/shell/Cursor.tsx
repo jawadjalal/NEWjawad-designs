@@ -185,14 +185,25 @@ export default function Cursor() {
       }
 
       // resolve the (static-between-moves) target the original rAF loop converged to
+      // blob stick target (3b) — resolved here so precedence stays in one place
+      const stick = t.closest && (t.closest('[data-blob-stick]') as HTMLElement | null);
+
       if (lock) {
         ensureQuick(0.12); // kk≈0.45 — faster ride along the path
         xTo(lock.x);
         yTo(lock.y);
         rotTo(lock.ang);
         // the blob rides the locked curve point too — left on the raw pointer
-        // it would drift off the nav visual while the sparkle stays on it
+        // it would drift off the nav visual while the sparkle stays on it.
+        // Precedence: nav lock > stick > free follow.
         blob.move(lock.x, lock.y, 0.12);
+      } else if (stick) {
+        // sparkle keeps its normal follow; only the blob body snaps to the rim
+        ensureQuick(feelDur(feel()));
+        xTo(tx);
+        yTo(ty);
+        rotTo(0);
+        blob.stick(stick.getBoundingClientRect(), tx, ty);
       } else {
         ensureQuick(feelDur(feel()));
         if (feel() === 'magnetic' && magnet) {

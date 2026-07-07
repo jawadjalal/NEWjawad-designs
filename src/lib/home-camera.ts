@@ -167,7 +167,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       prev: pv('/pricing', `<div class="e-pv-row" style="align-items:stretch;">${ghost('The Single · $500', 'flex:1;height:88px;')}${ghost('The Edition · $1,200', 'flex:1.12;height:100px;')}${ghost('The Commission · $3,000', 'flex:1;height:88px;')}</div><div class="e-pv-row">${bars(['100%', '70%'])}</div>`),
       note: ['Pricing', 'Three tiers as one rising podium — Single, Edition, Commission — ascending with price; blooms the live /pricing preview on dwell; opens /pricing.'] },
     { id: 'contact', ix: '06', tag: 'CONTACT', title: '', w: 1040, h: 600, open: 'contact', cls: 'e-slab e-on-dark', say: 'open contact ↗', dwellMs: 250,
-      body: `<div class="e-slab-head" data-matchcut>Your move.</div>
+      body: `<div class="e-slab-head" data-matchcut data-blob-stick>Your move.</div>
        <div class="e-slab-base"><a href="mailto:hijawadjalal@gmail.com">hijawadjalal@gmail.com</a></div>`,
       pvDetail: 'contact',
       note: ['Contact', 'The dark slab — Your move., one CTA to /contact, email baseline. No bloom preview, so the slab stays full and centred. Click match-cuts into the nested enquiry form. Terminal panel: advancing loops back to the hero.'] },
@@ -1152,7 +1152,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       const field = (label: string, tall?: boolean) => `<div class="e-field${tall ? ' tall' : ''}">${label}</div>`;
       const inner = `<div class="e-dworld" id="e-dworld">
         <div class="e-contact-core">
-          <div class="e-slab-head" data-matchcut style="font-size:clamp(40px,6vw,68px);">Your move.</div>
+          <div class="e-slab-head" data-matchcut data-blob-stick style="font-size:clamp(40px,6vw,68px);">Your move.</div>
           <div class="e-form">
             ${field('your name')}${field('email')}${field('what do you want to build?', true)}
             <div class="e-cta primary" style="align-self:center;margin-top:2px;pointer-events:auto;">Send it ▸</div>

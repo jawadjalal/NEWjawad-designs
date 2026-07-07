@@ -655,7 +655,7 @@ html.jawad-hidecursor * {
   /* near-white fill + exclusion = self-recolour against whatever is below
      (ink-dark on paper, paper-light on the dark CTA) — see --blob-fill note */
   mix-blend-mode: exclusion;
-  opacity: 0.85;
+  opacity: 0.78; /* tuned down from .85 — the at-rest merge with the bloomed OPEN star read heavy */
   display: none;
   transition: opacity 0.2s ease;
 }

@@ -970,3 +970,23 @@ outer layer moves by composited transform only; the only writes *inside* the
 filtered 120px SVG are the two tail circles' few-px drag-behind, and those freeze
 concentric during fast sweeps (velocity gate; 3c upgrades it to the real drag flag).
 No rAF loop — the blob is event-driven quickTo, same as the sparkle.
+
+---
+
+## Blob mascot · 3b — stick/merge on focal targets
+
+**Stick = rim-hug, not centre-cover.** On `[data-blob-stick]` (nav brand, nav CTA,
+the "Your move." slab head) the blob snaps to the point on the element's *border*
+nearest the pointer and the goo tails spread along that edge. Parking over the
+middle was rejected: with the exclusion blend the blob would invert the target's
+own label. Hugging the rim keeps text legible and still reads as "attached".
+Release pops the tails home with a springy `back.out` (GSAP core can't parse the
+CSS `--ease-bounce` bezier — back.out(2) is the matched stand-in).
+
+**Precedence: nav lock > stick > free follow** — one branch in Cursor's onMove,
+so a stuck blob always lets go when the pointer moves onto the nav curve. The
+sparkle's own magnetic feel mode is untouched (different bodies, different jobs).
+
+**Tune from 3a review:** layer opacity .85 → .78 (blob + bloomed OPEN star merged
+too heavy), tail smoothing slowed (0.34s+ power2.out) so mid-speed trailing reads
+liquid instead of twitchy.

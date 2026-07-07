@@ -176,7 +176,7 @@ export default function Nav() {
     <>
       <nav id="nav" aria-label="Primary">
         <div id="nav-row">
-          <Link className="brand" href="/" aria-label="Home" data-cursor-say="Home">
+          <Link className="brand" href="/" aria-label="Home" data-cursor-say="Home" data-blob-stick>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="brand-av" src="/assets/nav-memoji.webp" alt="Jawad" draggable={false} decoding="async" />
           </Link>
@@ -208,6 +208,7 @@ export default function Nav() {
             // secondary variant and stays neutral.
             className={`cta${onContact ? '' : ' cta-primary'}`}
             href={!onHome && cta.route ? cta.route : '/'}
+            data-blob-stick=""
             onClick={(e) => {
               e.preventDefault();
               goTo(cta);
