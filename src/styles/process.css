@@ -88,6 +88,8 @@
   border: var(--glass-border);
   border-radius: var(--glass-radius);
   padding: 24px 24px 20px;
+  /* NOTE: the blur above is switched off while the strip is scrolling — see
+     the .strip-moving rule below (perf; class set by process-strip.ts) */
   display: flex;
   flex-direction: column;
   gap: 9px;
@@ -301,4 +303,13 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* perf: while the strip travels, backdrop-filter would re-blur every card on
+   every scrolled frame; motion hides its absence and it returns at rest
+   (.strip-moving is set by process-strip.ts) */
+.canvas-page .strip-moving .proc-step,
+.canvas-page .strip-moving .proc-cta {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }

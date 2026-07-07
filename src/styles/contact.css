@@ -72,8 +72,7 @@
   border-radius: 8px;
   padding: 6px 10px;
   background: var(--glass-bg-soft);
-  backdrop-filter: var(--glass-blur-soft);
-  -webkit-backdrop-filter: var(--glass-blur-soft);
+  /* perf: no live blur — nested inside an already-frosted panel */
 }
 .canvas-page .cf-tier b {
   font-family: var(--hand);
@@ -110,8 +109,7 @@
   color: var(--ink);
   /* frosted field — light-mode analogue of the homepage dark .e-field */
   background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: var(--glass-blur-soft);
-  -webkit-backdrop-filter: var(--glass-blur-soft);
+  /* perf: no live blur — nested inside an already-frosted panel */
   border: 1.5px solid rgba(255, 255, 255, 0.8);
   border-radius: 8px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -166,8 +164,7 @@
   color: var(--ink-soft);
   /* soft-glass pills (pressed state stays solid ink below) */
   background: var(--glass-bg-soft);
-  backdrop-filter: var(--glass-blur-soft);
-  -webkit-backdrop-filter: var(--glass-blur-soft);
+  /* perf: no live blur — nested inside an already-frosted panel */
   border: 1.5px solid rgba(255, 255, 255, 0.8);
   border-radius: 999px;
   padding: 3px 9px;

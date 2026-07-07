@@ -106,6 +106,17 @@ export function createProcessStrip(root: HTMLElement, opts: ProcessStripOpts): P
       on(scroller, 'pointerup', endDrag);
       on(scroller, 'pointercancel', endDrag);
 
+      // Perf: while the strip is travelling, `.strip-moving` switches the step
+      // cards' live backdrop-blur off (see process.css) — same trick as the
+      // homepage panels. Back on ~160ms after the last scroll event.
+      let moveT = 0;
+      const markMoving = () => {
+        stage.classList.add('strip-moving');
+        window.clearTimeout(moveT);
+        moveT = window.setTimeout(() => stage.classList.remove('strip-moving'), 160);
+      };
+      on(scroller, 'scroll', markMoving);
+
       // active-card highlight + progress bar
       const update = () => {
         const max = scroller.scrollWidth - scroller.clientWidth;

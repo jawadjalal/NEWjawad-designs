@@ -680,8 +680,17 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   let camX = 0, camY = 0;
   let curEff = scale, idleX = 0, idleY = 0, idleAmp = 0;
   const IDLE_AMP = 7;
-  function writeWorld() { world.style.transform = `translate(${(camX + idleX).toFixed(1)}px,${(camY + idleY).toFixed(1)}px) scale(${curEff})`; }
+  let lastWorldTf = '';
+  function writeWorld() {
+    // perf: skip no-op writes — re-setting an identical transform still
+    // invalidates the compositor (and any blur reading through this layer)
+    const tf = `translate(${(camX + idleX).toFixed(1)}px,${(camY + idleY).toFixed(1)}px) scale(${curEff})`;
+    if (tf === lastWorldTf) return;
+    lastWorldTf = tf;
+    world.style.transform = tf;
+  }
   function idleBreath() {
+    if (document.hidden) return; // perf: no breath work while the tab is backgrounded
     if (!spatial() || mqReduce.matches) { if (idleX || idleY) { idleX = idleY = 0; writeWorld(); } return; }
     const still = (performance.now() - lastInputT > 220) && !settling;
     idleAmp += ((still ? 1 : 0) - idleAmp) * 0.05;
@@ -702,6 +711,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     const footerT = 0; // footer removed — Contact centres like a normal panel
     const fS = smooth(footerT);
     const vwB = viewport.clientWidth || 1200;
+    const vhB = viewport.clientHeight || 720;
     const eff = scale;
     const biasX = fS * (vwB / 2 - 56 - 210);
     if (blackout) { const slabT = seg > 0 ? Math.max(0, Math.min(1, p * seg - (seg - 1))) : 0; blackout.style.opacity = (smooth(slabT) * 0.8).toFixed(3); }
@@ -734,8 +744,20 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       }
       el.style.opacity = (active ? 1 : op).toFixed(3);
       el.style.zIndex = String(Math.round(z * 10 + pr * 12 + (active ? 20 : 0)));
+      // perf: panels fully outside the camera view stop compositing entirely.
+      // Screen position is derived from the same numbers the transform was
+      // built from (no DOM reads); the generous margin covers the idle-breath
+      // drift, the tilt wobble and the panel's drop shadow, so a panel is
+      // always visible again well before it enters the frame.
+      const M = 280;
+      const sx = camX + (px + tx) * eff, sy = camY + (py + ty) * eff;
+      const halfW = ((SECTIONS[i].w || 600) * sc * eff) / 2 + M;
+      const halfH = ((SECTIONS[i].h || 400) * 1.5 * sc * eff) / 2 + M;
+      const offscreen = sx + halfW < 0 || sx - halfW > vwB || sy + halfH < 0 || sy - halfH > vhB;
+      el.style.visibility = offscreen && !active ? 'hidden' : '';
     });
     updateNav(pt, p);
+    kickPanelTilt(); // panel rects moved — let the tilt/glare loop re-track them
   }
 
   /* ---------- subtle cursor-tilt + glare on every canvas panel ---------- */
@@ -752,15 +774,20 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
     const MAX = 5.5;
     const loaderVisible = loaderEl && loaderEl.style.display !== 'none';
     let alive = false;
-    world.querySelectorAll(':scope > .e-panel').forEach((px) => {
-      const p = px as Fx;
+    const panels = Array.from(world.querySelectorAll(':scope > .e-panel')) as Fx[];
+    // perf: read every rect BEFORE writing any style. The old loop interleaved
+    // getBoundingClientRect with transform writes, forcing a layout pass per
+    // panel per frame (classic layout thrash).
+    const pm = loaderVisible ? null : ptMouse; // local so TS keeps the narrowing inside the loop
+    const rects = pm ? panels.map((p) => p.getBoundingClientRect()) : null;
+    panels.forEach((p, pi) => {
       if (p.classList.contains('e-billboard')) return;
       let trx = 0, try_ = 0, gx = 50, gy = 28, ga = 0;
-      if (ptMouse && !loaderVisible) {
-        const r = p.getBoundingClientRect();
+      const r = rects && rects[pi];
+      if (pm && r) {
         if (r.width && r.height) {
-          const nx = (ptMouse.x - (r.left + r.width / 2)) / (r.width / 2);
-          const ny = (ptMouse.y - (r.top + r.height / 2)) / (r.height / 2);
+          const nx = (pm.x - (r.left + r.width / 2)) / (r.width / 2);
+          const ny = (pm.y - (r.top + r.height / 2)) / (r.height / 2);
           const reach = Math.hypot(nx, ny);
           const fall = reach <= 1 ? 1 : Math.max(0, 1 - (reach - 1) / 1.3);
           const cnx = Math.max(-1, Math.min(1, nx)), cny = Math.max(-1, Math.min(1, ny));
@@ -776,7 +803,11 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
       const g = p.querySelector(':scope > .e-panel-glare') as HTMLElement | null;
       if (g) { g.style.opacity = ga.toFixed(3); g.style.setProperty('--gx', gx.toFixed(1) + '%'); g.style.setProperty('--gy', gy.toFixed(1) + '%'); }
     });
-    if (!(alive || ptMouse)) { panelTiltTicking = false; removeTick(panelTiltStep); }
+    // perf: stop once every panel has converged — the old `alive || ptMouse`
+    // condition kept this loop (and its 7 rect reads/frame) running forever
+    // while the pointer was anywhere over the viewport. Pointer moves and
+    // camera moves both re-kick it, so nothing is lost.
+    if (!alive) { panelTiltTicking = false; removeTick(panelTiltStep); }
   }
 
   /* ---------- inertia scroll + gentle magnetic settle (no scroll-snap) ---------- */

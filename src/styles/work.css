@@ -103,8 +103,7 @@
 .canvas-page .ghost {
   border: 1.5px dashed var(--line);
   background: var(--glass-bg-soft);
-  backdrop-filter: var(--glass-blur-soft);
-  -webkit-backdrop-filter: var(--glass-blur-soft);
+  /* perf: no live blur — these ride the pannable whiteboard */
   display: flex;
   flex-direction: column;
   align-items: center;

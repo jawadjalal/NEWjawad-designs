@@ -168,6 +168,17 @@ export function createSpatialCanvas(root: HTMLElement, opts: SpatialCanvasOpts):
       // nested detail canvases always open at the prototype's 0.74; the main
       // canvas uses the page's home scale (0.46 default, 0.78 for the slug).
       const home = nested ? (isMobile ? 0.5 : 0.74) : mainHome;
+      // Perf: while the canvas is panning/zooming, `.sc-moving` switches the
+      // glass panels' live backdrop-blur off (see canvas.css) — re-blurring
+      // every panel per drag frame is what made panning feel heavy. The class
+      // drops ~160ms after the last transform write, so the blur is back the
+      // moment the canvas comes to rest; in motion its absence is invisible.
+      let moveT = 0;
+      const markMoving = () => {
+        sc.classList.add('sc-moving');
+        window.clearTimeout(moveT);
+        moveT = window.setTimeout(() => sc.classList.remove('sc-moving'), 160);
+      };
       const st: CanvasState = {
         s: home,
         px: 0,
@@ -175,7 +186,10 @@ export function createSpatialCanvas(root: HTMLElement, opts: SpatialCanvasOpts):
         home,
         // GSAP writes the transform (translate + scale about centre) — same
         // visual result as the prototype's `translate(px,py) scale(s)`.
-        apply: () => gsap.set(cv, { x: st.px, y: st.py, scale: st.s }),
+        apply: () => {
+          markMoving();
+          gsap.set(cv, { x: st.px, y: st.py, scale: st.s });
+        },
       };
       states.set(sc, st);
       st.apply();

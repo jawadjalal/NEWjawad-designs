@@ -907,3 +907,43 @@ becomes the panel; cursor reads "live site ↗" to signal the outbound click.
 written). Thumbnail is the site's own OG hero (`/assets/bidframe/hero.webp`),
 which already matches the portfolio's grid-paper look. When a full Bidframe case
 study exists, swap `data-href` for a `data-slug` and drop it into the cycle.
+
+---
+
+## Performance pass (blur strategy + ticker hygiene)
+
+**Why the site was laggy.** Every glass surface used a *live* `backdrop-filter`,
+and most of them sit inside worlds whose transform changes every frame (the home
+camera + its idle breath, the pannable canvases, the process strip). A backdrop
+blur has to re-sample whatever is behind it each time that changes, so the GPU
+was re-blurring ~20 large layers at 60fps even when nothing looked like it was
+moving. Two JS loops made it worse: the panel tilt ticker never stopped while
+the pointer was over the viewport (and interleaved rect reads with style writes
+— forced layout per panel per frame), and the idle breath re-wrote the world
+transform even when it produced the identical string.
+
+**What changed (visuals intentionally identical).**
+- **Blur only where the eye is.** Home: `backdrop-filter` lives only on the
+  `.is-active` (settled, centred) panel; non-active panels keep the same
+  translucent gradient, which over flat grid paper reads the same. Nested blurs
+  (portal frame/chips, tiers, pods, preview frames, contact fields/pills, chips,
+  ghosts) are gone — blurring the inside of an already-frosted panel is invisible.
+- **Blur off during motion.** Spatial canvases get `.sc-moving` while panning/
+  zooming (spatial-canvas.ts), the process strip gets `.strip-moving` while
+  scrolling (process-strip.ts); both switch panel blur off mid-motion and back
+  ~160ms after rest. Motion hides the swap. Same rule gates the podium/ribbon
+  `filter: drop-shadow` to the active panel (SVG/CSS filters re-rasterize on
+  every transform change).
+- **Ticker hygiene** (home-camera.ts): tilt loop batches all rect reads before
+  any writes and stops once converged (pointer/camera moves re-kick it);
+  `writeWorld` skips no-op transform writes; idle breath pauses in hidden tabs;
+  fully off-screen panels get `visibility:hidden` (computed from the camera's
+  own numbers, no DOM reads) so they stop compositing.
+- **Assets:** deleted ~10MB of unreferenced `.png` originals (the site loads the
+  `.webp` versions; `jawad-portrait.png` kept — JSON-LD schema points at it).
+
+**Tradeoffs.** The blur returning on settle is a real (subtle) state change; it
+reads as the panel "coming into focus" and lands with the existing settle pose.
+`contain: paint` on panels was considered and rejected — the number badge
+overflows its panel and would be clipped. The nav pill's blur(14px) was kept:
+it's small, fixed, and part of the site's signature chrome.

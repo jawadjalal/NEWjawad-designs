@@ -40,10 +40,16 @@
 .e-wires line.done{stroke:none;}
 .e-wires .e-arrow{fill:none;stroke:var(--ink);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:.82;}
 
-.e-panel{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(152deg,rgba(255,255,255,.7),rgba(245,244,240,.6) 52%,rgba(235,233,228,.66));backdrop-filter:blur(10px) saturate(1.06);-webkit-backdrop-filter:blur(10px) saturate(1.06);border:3px solid rgba(255,255,255,.82);
+/* Perf: live backdrop-blur only on the ACTIVE (settled, centred) panel. The
+   world transform changes every frame (camera travel + idle breath), and
+   backdrop-filter re-samples its backdrop on every such change — ~20 always-on
+   blurs was the main source of the site-wide lag. The backdrop here is flat
+   grid paper, so on the smaller, dimmed non-active panels the translucent
+   gradient alone reads the same; the panel you're looking at keeps real glass. */
+.e-panel{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(152deg,rgba(255,255,255,.7),rgba(245,244,240,.6) 52%,rgba(235,233,228,.66));border:3px solid rgba(255,255,255,.82);
   border-radius:13px;padding:18px 20px;display:flex;flex-direction:column;gap:9px;box-shadow:0 0 0 1px var(--line-soft),0 14px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.78);
   transition:box-shadow .25s var(--ease-smooth,ease),border-color .2s;}
-.e-panel.is-active{box-shadow:0 0 0 1px var(--line-soft),0 22px 48px rgba(0,0,0,.18);border-color:rgba(255,255,255,.95);transform:translate(-50%,-50%) scale(1.04);z-index:5;}
+.e-panel.is-active{backdrop-filter:blur(10px) saturate(1.06);-webkit-backdrop-filter:blur(10px) saturate(1.06);box-shadow:0 0 0 1px var(--line-soft),0 22px 48px rgba(0,0,0,.18);border-color:rgba(255,255,255,.95);transform:translate(-50%,-50%) scale(1.04);z-index:5;}
 .e-panel.bare.is-active{transform:translate(-50%,-50%) scale(1.03);}
 .e-panel.openable{cursor:pointer;}
 .e-panel.openable:focus-visible{outline:2px solid var(--ink);outline-offset:4px;}
@@ -84,9 +90,10 @@
 .e-panel.e-slab{align-items:center;justify-content:center;text-align:center;gap:26px;padding:56px 56px;
   background-color:rgba(18,17,14,.72);
   background-image:repeating-linear-gradient(0deg,transparent 0 31px,rgba(255,255,255,.05) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(255,255,255,.05) 31px 32px);
-  backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);
   border:1px solid rgba(255,255,255,.12)!important;
   box-shadow:0 0 0 1px rgba(0,0,0,.4),0 26px 64px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.14)!important;}
+/* the slab's stronger glass, active-only (same perf rule as .e-panel above) */
+.e-panel.e-slab.is-active{backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);}
 .e-slab-head{font-family:var(--hand);font-size:clamp(60px,8vw,104px);line-height:.88;color:#f4f3f0;letter-spacing:-.015em;}
 .e-slab .e-cta{font-size:14px;}
 .e-slab-base a{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:rgba(244,243,240,.5);text-decoration:none;border-bottom:1px solid rgba(244,243,240,.18);padding-bottom:2px;transition:color .15s,border-color .15s;}
@@ -120,7 +127,7 @@
 .e-panel.e-portal{width:min(420px, 88vw);min-height:300px;align-items:center;text-align:center;gap:16px;}
 .e-portal>.e-title{font-size:26px;line-height:1.04;}
 .e-portal-frame{position:relative;padding:13px;border-radius:50%;align-self:center;
-  background:linear-gradient(152deg,rgba(255,255,255,.55),rgba(235,233,228,.4));backdrop-filter:blur(10px) saturate(1.05);-webkit-backdrop-filter:blur(10px) saturate(1.05);
+  background:linear-gradient(152deg,rgba(255,255,255,.55),rgba(235,233,228,.4));
   border:1.5px solid rgba(255,255,255,.85);box-shadow:0 18px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.7);}
 .e-portal-ring{position:relative;width:240px;height:240px;border-radius:50%;overflow:hidden;
   border:2px solid rgba(255,255,255,.9);box-shadow:0 0 0 1px var(--line-soft);background:var(--paper-2);}
@@ -130,7 +137,7 @@
 .e-portal-facts{display:flex;gap:16px;justify-content:center;align-items:center;}
 .e-portal-chip{width:78px;height:78px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   font-family:var(--mono);font-size:9px;line-height:1.5;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);padding:8px;
-  background:linear-gradient(152deg,rgba(255,255,255,.6),rgba(233,231,226,.5));backdrop-filter:blur(8px) saturate(1.04);-webkit-backdrop-filter:blur(8px) saturate(1.04);
+  background:linear-gradient(152deg,rgba(255,255,255,.6),rgba(233,231,226,.5));
   border:1.5px solid rgba(255,255,255,.85);box-shadow:0 8px 18px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.7);}
 .e-portal-chip b{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);}
 .e-about-core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;text-align:center;z-index:4;pointer-events:none;}
@@ -164,7 +171,7 @@
 .e-panel.e-pricing{align-items:center;text-align:center;gap:14px;}
 .e-tiers{display:flex;gap:12px;align-items:stretch;justify-content:center;width:100%;padding-top:8px;}
 .e-tier{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:18px 12px;border-radius:12px;
-  background:linear-gradient(152deg,rgba(255,255,255,.55),rgba(235,233,228,.42));backdrop-filter:blur(7px) saturate(1.04);-webkit-backdrop-filter:blur(7px) saturate(1.04);
+  background:linear-gradient(152deg,rgba(255,255,255,.55),rgba(235,233,228,.42));
   border:1.5px solid rgba(255,255,255,.8);box-shadow:0 8px 18px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.65);
   transition:transform .42s cubic-bezier(.2,.7,.2,1),box-shadow .42s ease;}
 .e-tier-name{font-family:var(--hand);font-size:18px;color:var(--ink);line-height:1;}
@@ -352,7 +359,7 @@ body.show-tier-badges .e-tier-badge{display:inline-flex;}
 /* ---------- spatial-map nav ---------- */
 .e-minimap{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:8;
   display:flex;flex-direction:column;align-items:center;background:rgba(244,243,240,.93);border:1.5px solid var(--ink);
-  backdrop-filter:blur(3px);box-shadow:0 10px 30px rgba(0,0,0,.16);}
+  box-shadow:0 10px 30px rgba(0,0,0,.16);}
 .e-minimap.hide{display:none;}
 .e-minimap.v-spine{border-radius:20px;padding:10px 18px 8px;gap:13px;}
 .e-minimap.v-constellation{border-radius:16px;padding:0;gap:0;}
@@ -388,7 +395,7 @@ body.show-tier-badges .e-tier-badge{display:inline-flex;}
   transition:transform .42s cubic-bezier(.2,.7,.2,1),opacity .3s;}
 .e-detail.open{opacity:1;transform:scale(1);pointer-events:auto;}
 .e-detail-chrome{position:absolute;top:0;left:0;right:0;z-index:24;display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;background:rgba(244,243,240,.92);backdrop-filter:blur(3px);border-bottom:1px solid var(--line-soft);}
+  padding:10px 14px;background:rgba(244,243,240,.92);border-bottom:1px solid var(--line-soft);}
 .e-back{font-family:var(--mono);font-size:11px;border:1.5px solid var(--ink);border-radius:999px;padding:5px 12px;color:var(--ink);background:var(--paper);cursor:pointer;}
 .e-close{font-family:var(--mono);font-size:13px;width:26px;height:26px;border:1.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink);background:var(--paper);cursor:pointer;}
 .e-dwrap{position:absolute;inset:0;overflow:hidden;background:
@@ -432,7 +439,7 @@ body.e-hide-markers .eye,body.e-hide-markers .cta-flag,body.e-hide-markers .e-ey
    live page-iframe blooms in. (.e-pv-live below repaints it opaque for the
    real screenshot, but keeps the white frame.) */
 .e-prevframe{display:flex;flex-direction:column;gap:8px;border:1.5px solid rgba(255,255,255,.8);border-radius:10px;padding:12px;
-  background:var(--glass-bg-soft);backdrop-filter:var(--glass-blur-soft);-webkit-backdrop-filter:var(--glass-blur-soft);
+  background:var(--glass-bg-soft);
   box-shadow:0 8px 18px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.65);}
 /* ghosts inside a preview pick up the soft-glass chip look (scoped, so the
    greyboxes elsewhere on the canvas are untouched) */
@@ -469,10 +476,12 @@ body.e-hide-markers .eye,body.e-hide-markers .cta-flag,body.e-hide-markers .e-ey
    ============================================================ */
 .e-panel.e-podiumpanel{align-items:center;gap:12px;}
 .e-podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:0;width:100%;
-  filter:drop-shadow(0 14px 26px rgba(0,0,0,.16));}
+  }
+/* perf: the podium's silhouette shadow re-rasterizes on every transform change,
+   so it only renders once the panel is settled (motion hides its absence) */
+.e-panel.is-active .e-podium-wrap{filter:drop-shadow(0 14px 26px rgba(0,0,0,.16));}
 .e-pod{position:relative;flex:1;display:flex;flex-direction:column;gap:8px;padding:15px 15px 17px;
   background:linear-gradient(152deg,rgba(255,255,255,.8),rgba(236,234,229,.62));
-  -webkit-backdrop-filter:blur(7px) saturate(1.05);backdrop-filter:blur(7px) saturate(1.05);
   border-top:2px solid var(--line-soft);border-bottom:2px solid var(--line-soft);}
 .e-pod1{min-height:170px;border-left:2px solid var(--line-soft);border-right:1.5px solid var(--line-soft);border-radius:20px 14px 0 20px;}
 .e-pod2{min-height:218px;border-right:1.5px solid var(--line-soft);border-radius:14px 14px 0 0;}
@@ -524,7 +533,9 @@ body.e-hide-markers .eye,body.e-hide-markers .cta-flag,body.e-hide-markers .e-ey
 .e-ribbon{position:relative;width:100%;height:300px;padding:6px 0 0;}
 .e-ribbon-line{position:absolute;left:0;top:6px;width:100%;height:260px;overflow:visible;z-index:0;}
 .e-ribbon-line path{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6000;stroke-dashoffset:6000;transition:stroke-dashoffset 3.6s linear;}
-.e-ribbon-line .e-rb-border{stroke:rgba(255,255,255,.85);stroke-width:3;fill:rgba(247,246,243,.55);stroke-dasharray:0!important;stroke-dashoffset:0!important;filter:drop-shadow(0 12px 22px rgba(0,0,0,.14));}
+.e-ribbon-line .e-rb-border{stroke:rgba(255,255,255,.85);stroke-width:3;fill:rgba(247,246,243,.55);stroke-dasharray:0!important;stroke-dashoffset:0!important;}
+/* perf: SVG drop-shadow only once the ribbon panel is settled (same rule as the podium) */
+.e-panel.is-active .e-ribbon-line .e-rb-border{filter:drop-shadow(0 12px 22px rgba(0,0,0,.14));}
 .e-ribbon-steps{position:relative;height:260px;z-index:1;}
 .e-rstep{position:absolute;top:calc(var(--cy,128px) - 17px);transform:translate(-50%,12px);width:128px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;
   opacity:0;transition:opacity .4s ease,transform .45s cubic-bezier(.2,.8,.2,1);}
