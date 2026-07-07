@@ -19,6 +19,7 @@
  */
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
+import { createBlob } from '@/lib/blob';
 import { prefersReducedMotion } from '@/lib/motion';
 
 const STAR = 'M0,-8 Q1.6,-1.6 8,0 Q1.6,1.6 0,8 Q-1.6,1.6 -8,0 Q-1.6,-1.6 0,-8 Z';
@@ -78,12 +79,14 @@ function nearestOnPath(pe: SVGGeometryElement, cx: number, cy: number) {
 
 export default function Cursor() {
   const ref = useRef<HTMLDivElement>(null);
+  const blobRef = useRef<HTMLDivElement>(null);
   const lblRef = useRef<HTMLSpanElement>(null);
   const sayRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (!window.matchMedia || !window.matchMedia('(pointer:fine)').matches) return; // desktop only
     const el = ref.current!;
+    const blobEl = blobRef.current!;
     const lbl = lblRef.current!;
     const sayBubble = sayRef.current!;
     const reduced = prefersReducedMotion();
@@ -101,6 +104,9 @@ export default function Cursor() {
 
     document.documentElement.classList.add('jawad-hidecursor');
     gsap.set(el, { left: 0, top: 0, xPercent: -50, yPercent: -50, x: -80, y: -80, rotation: 0 });
+    // the gooey body that trails the sparkle (Stage 3a); motion lives in blob.ts
+    gsap.set(blobEl, { left: 0, top: 0, xPercent: -50, yPercent: -50, x: -80, y: -80 });
+    const blob = createBlob(blobEl, { reduced });
 
     // quickTo setters; rebuilt when the smoothing duration changes (feel / lock)
     let curDur = -1;
@@ -124,6 +130,8 @@ export default function Cursor() {
         ty = e.clientY;
       el.classList.add('on');
       el.classList.remove('dim');
+      blobEl.classList.add('on');
+      blobEl.classList.remove('dim');
       const t = e.target as Element;
       const w = window as unknown as { __jawadDragging?: boolean; __jawadDragLabel?: string };
 
@@ -136,6 +144,7 @@ export default function Cursor() {
         xTo(tx);
         yTo(ty);
         rotTo(0);
+        blob.move(tx, ty, feelDur(feel()));
         return;
       }
 
@@ -181,6 +190,9 @@ export default function Cursor() {
         xTo(lock.x);
         yTo(lock.y);
         rotTo(lock.ang);
+        // the blob rides the locked curve point too — left on the raw pointer
+        // it would drift off the nav visual while the sparkle stays on it
+        blob.move(lock.x, lock.y, 0.12);
       } else {
         ensureQuick(feelDur(feel()));
         if (feel() === 'magnetic' && magnet) {
@@ -191,6 +203,8 @@ export default function Cursor() {
           yTo(ty);
         }
         rotTo(0);
+        // body chases the raw pointer (the sparkle alone drifts to magnets)
+        blob.move(tx, ty, feelDur(feel()));
       }
     };
 
@@ -212,7 +226,10 @@ export default function Cursor() {
       inkSplat(e.clientX, e.clientY, e.button !== 2);
     };
     const onUp = () => el.classList.remove('press');
-    const onLeave = () => el.classList.add('dim');
+    const onLeave = () => {
+      el.classList.add('dim');
+      blobEl.classList.add('dim');
+    };
 
     window.addEventListener('pointermove', onMove, { passive: true, capture: true });
     window.addEventListener('pointerdown', onDown, { passive: true, capture: true });
@@ -227,23 +244,60 @@ export default function Cursor() {
       document.removeEventListener('mouseleave', onLeave);
       window.removeEventListener('blur', onLeave);
       document.documentElement.classList.remove('jawad-hidecursor');
+      blob.destroy();
     };
   }, []);
 
   return (
-    <div id="jawad-cursor" ref={ref} aria-hidden="true">
-      <svg className="jc-star" viewBox="-12 -12 24 24" aria-hidden="true">
-        <path d={STAR} />
-      </svg>
-      <svg className="jc-arrow jc-left" viewBox="-6 -8 12 16" aria-hidden="true">
-        <path d="M2.5,-5 L-2.5,0 L2.5,5" />
-      </svg>
-      <svg className="jc-arrow jc-right" viewBox="-6 -8 12 16" aria-hidden="true">
-        <path d="M-2.5,-5 L2.5,0 L-2.5,5" />
-      </svg>
-      <span className="jc-lbl" ref={lblRef} />
-      <span className="jc-say" ref={sayRef} />
-    </div>
+    <>
+      {/*
+        The blob body is a SIBLING of the cursor, not a child: it carries its
+        own mix-blend-mode + a lower z-index, so the sparkle, GRAB label and
+        say bubble above it render un-blended and stay legible. The gooey look
+        is the classic SVG metaball recipe: blur the circles, then push the
+        alpha contrast way up (feColorMatrix) so the soft blur snaps back to a
+        hard liquid edge — overlapping circles read as one merging liquid.
+      */}
+      <div id="jawad-blob" ref={blobRef} aria-hidden="true">
+        <svg className="jb-svg" viewBox="0 0 120 120" width="120" height="120">
+          <defs>
+            <filter
+              id="jb-goo"
+              x="-40%"
+              y="-40%"
+              width="180%"
+              height="180%"
+              colorInterpolationFilters="sRGB"
+            >
+              <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b" />
+              <feColorMatrix
+                in="b"
+                type="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8"
+              />
+            </filter>
+          </defs>
+          <g className="jb-goo" filter="url(#jb-goo)">
+            <circle className="jb-c jb-main" cx="60" cy="60" r="15" />
+            <circle className="jb-c jb-tail" cx="60" cy="60" r="9" />
+            <circle className="jb-c jb-tail jb-tail2" cx="60" cy="60" r="6" />
+          </g>
+        </svg>
+      </div>
+      <div id="jawad-cursor" ref={ref} aria-hidden="true">
+        <svg className="jc-star" viewBox="-12 -12 24 24" aria-hidden="true">
+          <path d={STAR} />
+        </svg>
+        <svg className="jc-arrow jc-left" viewBox="-6 -8 12 16" aria-hidden="true">
+          <path d="M2.5,-5 L-2.5,0 L2.5,5" />
+        </svg>
+        <svg className="jc-arrow jc-right" viewBox="-6 -8 12 16" aria-hidden="true">
+          <path d="M-2.5,-5 L2.5,0 L-2.5,5" />
+        </svg>
+        <span className="jc-lbl" ref={lblRef} />
+        <span className="jc-say" ref={sayRef} />
+      </div>
+    </>
   );
 }
 

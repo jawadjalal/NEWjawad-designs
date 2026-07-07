@@ -30,6 +30,12 @@
   --fill: #cfcec9;
   --fill-2: #dcdbd6;
   --hatch: #d6d5d0;
+  /* Blob mascot body fill (Stage 3a). Near-white + mix-blend-mode:exclusion
+     ≈ invert at the extremes: reads ink-dark over paper, paper-light over the
+     dark CTA slab — the mascot self-recolours with no per-surface JS. Warmed a
+     touch off pure white so the on-paper result stays warm, not photocopy-grey.
+     Tuning knobs live on #jawad-blob (opacity, .solid fallback) — see NOTES.md. */
+  --blob-fill: #fbfaf4;
   --hand: var(--font-architects), 'Comic Sans MS', cursive;
   --mono: 'SF Mono', ui-monospace, 'Menlo', monospace;
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
@@ -631,5 +637,53 @@ html.jawad-hidecursor * {
   .jc-ink.go,
   .jc-drop.go {
     animation-duration: 0.36s;
+  }
+}
+
+/* ============================================================
+   Blob mascot body (Stage 3a — ART_DIRECTION §6). A gooey liquid
+   shape trailing the sparkle. Sibling layer BELOW the cursor so
+   the sparkle/labels/say-bubble stay on top, un-blended; motion
+   lives in src/lib/blob.ts, driven by Cursor.tsx's pointermove.
+   ============================================================ */
+#jawad-blob {
+  position: fixed;
+  left: -80px;
+  top: -80px;
+  z-index: 2147483595; /* above the ink splat (…590), below the sparkle (…600) */
+  pointer-events: none;
+  /* near-white fill + exclusion = self-recolour against whatever is below
+     (ink-dark on paper, paper-light on the dark CTA) — see --blob-fill note */
+  mix-blend-mode: exclusion;
+  opacity: 0.85;
+  display: none;
+  transition: opacity 0.2s ease;
+}
+#jawad-blob.on {
+  display: block;
+}
+#jawad-blob.dim {
+  opacity: 0;
+}
+#jawad-blob .jb-svg {
+  display: block;
+  overflow: visible;
+}
+#jawad-blob .jb-c {
+  fill: var(--blob-fill);
+}
+/* Escape hatch (unused for now): if the blend reads muddy over a surface,
+   a classList toggle turns the blob into a quiet translucent ink shape. */
+#jawad-blob.solid {
+  mix-blend-mode: normal;
+  opacity: 0.22;
+}
+#jawad-blob.solid .jb-c {
+  fill: var(--ink);
+}
+/* belt-and-braces: the (pointer:fine) mount gate already prevents activation */
+@media (pointer: coarse) {
+  #jawad-blob {
+    display: none !important;
   }
 }

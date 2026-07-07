@@ -947,3 +947,26 @@ reads as the panel "coming into focus" and lands with the existing settle pose.
 `contain: paint` on panels was considered and rejected — the number badge
 overflows its panel and would be clipped. The nav pill's blur(14px) was kept:
 it's small, fixed, and part of the site's signature chrome.
+
+---
+
+## Blob mascot · 3a — gooey follow body (ART_DIRECTION §6, hybrid form)
+
+**The choice (user decision): hybrid, not a swap.** The sparkle cursor stays the
+precise pointer tip with all its behaviours; a new gooey blob *body* trails it in
+its own fixed layer (`#jawad-blob`, z just below the cursor) and will carry the
+mascot personality (stick 3b, moods 3c). Sibling layer — not a child — because the
+blob needs its own `mix-blend-mode` and must sit *under* the say bubble / labels.
+
+**Recolour = `exclusion` + a near-white `--blob-fill` token.** Near-white through
+exclusion ≈ invert at the extremes (ink-dark over paper, paper-light over the dark
+CTA) but compresses mid-tones, so backdrop-blurred glass inverts softly rather than
+going noisy the way `difference` does. Known caveat: over `--accent` it shifts
+cyan — rare by design (accent is seasoning). Tuning ladder if muddy: layer opacity →
+warm the fill → the shipped-but-unused `.solid` class (blend off, translucent ink).
+
+**Perf rule (per the perf pass): the filter never re-rasterizes on follow.** The
+outer layer moves by composited transform only; the only writes *inside* the
+filtered 120px SVG are the two tail circles' few-px drag-behind, and those freeze
+concentric during fast sweeps (velocity gate; 3c upgrades it to the real drag flag).
+No rAF loop — the blob is event-driven quickTo, same as the sparkle.
