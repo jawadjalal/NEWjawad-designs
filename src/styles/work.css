@@ -239,7 +239,7 @@
    focused "selected work" list rather than a wall of empty boxes.
    Engine skips pan/zoom here; the billboard keeps cycling.
    ============================================================ */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   .canvas-page .wb {
     position: static;
     inset: auto;

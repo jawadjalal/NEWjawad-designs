@@ -82,7 +82,12 @@ export default function Cursor() {
   const sayRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (!window.matchMedia || !window.matchMedia('(pointer:fine)').matches) return; // desktop only
+    // Enable the custom cursor whenever a precise pointer is *available*
+    // (`any-pointer: fine`), not only when it's the *primary* one — so
+    // touchscreen laptops / 2-in-1s (trackpad + touch, touch often primary)
+    // still get the desktop cursor. The `jawad-hidecursor` class is only added
+    // below, so touch-only devices are untouched.
+    if (!window.matchMedia || !window.matchMedia('(any-pointer: fine)').matches) return;
     const el = ref.current!;
     const lbl = lblRef.current!;
     const sayBubble = sayRef.current!;

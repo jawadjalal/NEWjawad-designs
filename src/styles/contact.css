@@ -269,7 +269,7 @@
 /* Phase 5b — mobile fallback (canvas.css does the panel reflow). Contact-only
    fixes: a full-width social "circle" reads better as a card, and the Calendly
    grid collapses to one column so it never overflows a phone. */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   .canvas-page .nd-soc-circle {
     aspect-ratio: auto;
     border-radius: 7px;

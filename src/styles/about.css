@@ -73,7 +73,7 @@
   text-decoration: none;
 }
 
-@media (pointer: coarse), (max-width: 760px) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   .canvas-page .ab-ring {
     width: 128px;
     height: 128px;

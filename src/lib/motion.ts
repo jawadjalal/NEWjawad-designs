@@ -22,14 +22,24 @@ export function prefersReducedMotion(): boolean {
 
 /**
  * The breakpoint at which a pannable spatial canvas falls back to a plain
- * vertical-scroll stack (Phase 5b / roadmap §8). Touch *or* narrow viewport:
- * pinch-pan-zoom is rough on phones, so on those devices the canvas pages
- * present the same panels stacked and natively scrollable instead. This MUST
- * match the `@media` condition the canvas CSS uses, so the JS engine and the
- * layout agree on when to switch. The home camera uses the same 768px gate
- * (see home-camera.ts `spatial()`), so every route flips at one width.
+ * vertical-scroll stack (Phase 5b / roadmap §8). We stack on a genuinely narrow
+ * viewport OR on a *touch-only* device (a coarse pointer with NO fine pointer
+ * available). The `any-pointer` checks matter: a touchscreen laptop / 2-in-1
+ * has BOTH a coarse pointer (the screen) AND a fine one (the trackpad), and
+ * many browsers report the coarse one as *primary* — so the old
+ * `(pointer: coarse)` test wrongly dropped those laptops into the phone stack
+ * (no intro animation, no side-scroll camera). Keying off "is a fine pointer
+ * *available* anywhere" instead keeps every laptop on the desktop experience
+ * while real phones/tablets (coarse, no fine) still stack. The trailing
+ * `(any-pointer: coarse)` guard means browsers with no pointer-media support at
+ * all fall through to the desktop default (safe).
+ *
+ * This MUST match the `@media` condition the canvas CSS uses, so the JS engine
+ * and the layout agree on when to switch. The home camera mirrors it in
+ * home-camera.ts `spatial()`, so every route flips on the same condition.
  */
-export const STACK_MQ = '(max-width: 768px), (pointer: coarse)';
+export const STACK_MQ =
+  '(max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine))';
 
 /** True when the spatial canvases should render as a stacked scroll. SSR-safe. */
 export function prefersStackedCanvas(): boolean {

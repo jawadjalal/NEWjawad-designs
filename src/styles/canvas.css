@@ -666,7 +666,7 @@
    Per-page bits (work whiteboard, process strip) layer on top in
    their own files.
    ============================================================ */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   /* the fixed full-screen stage becomes the scroll container */
   .canvas-page {
     overflow-y: auto;

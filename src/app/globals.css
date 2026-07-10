@@ -318,7 +318,7 @@ select:focus-visible,
    from live rects and rebuilds on resize (PathProgress), so it
    re-fits itself; nothing in the JS changes. Mirrors STACK_MQ.
    ============================================================ */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   #nav {
     bottom: 14px;
     padding: 4px 6px;
@@ -391,7 +391,7 @@ select:focus-visible,
 /* Phase 5b: the hint explains the left-click/right-click/arrow-key power moves,
    none of which exist on touch — and on a phone it overlaps the stacked canvas
    content. Hide it on the stacked (mobile) breakpoint. Mirrors STACK_MQ. */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   #nav-hint {
     display: none;
   }

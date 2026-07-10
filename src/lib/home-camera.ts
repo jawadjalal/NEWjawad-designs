@@ -38,6 +38,7 @@
    The `why` of the tricky bits is commented inline, as before.
    ============================================================ */
 import { gsap } from '@/lib/gsap';
+import { STACK_MQ } from '@/lib/motion';
 
 /* logo set for the hero orbit + rails — inlined from extracted/brand-logos.js,
    with asset paths rebased to /assets (Next serves public/ at the root). */
@@ -205,13 +206,15 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   let navLastFrac = 0, navLastIdx = 0;
   let travPath: SVGPathElement | null = null, travLen = 0, panelLen: number[] = [];
   const EASE = 'subtle';
-  const FINE = (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer:fine)').matches);
-  const mqCoarse = window.matchMedia('(pointer:coarse)');
-  // 768px matches STACK_MQ (motion.ts) so the home camera falls back to native
-  // scroll at the *same* width as every other route — no 760/768 dead zone.
-  const mqNarrow = window.matchMedia('(max-width: 768px)');
+  // Desktop "spatial" mode is gated on STACK_MQ (motion.ts) so the home camera
+  // flips on the exact same condition as every other route. Crucially this keys
+  // off `any-pointer` (is a precise pointer *available*?) rather than the
+  // *primary* pointer: touchscreen laptops / 2-in-1s report touch as primary,
+  // which used to force the phone stack (no intro, no side-scroll) even though a
+  // trackpad is present. `mqStack` matching means "stack" → not spatial.
+  const mqStack = window.matchMedia(STACK_MQ);
   const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  function spatial() { return FINE && !mqCoarse.matches && !mqNarrow.matches; }
+  function spatial() { return !mqStack.matches; }
   const SETTLE_SCALE = 1.02;
   // per-panel depth (z ~0.6 far → 1.4 near), index-matched to SECTIONS
   const DEPTH = [0.8, 1.12, 1.16, 0.78, 0.84, 1.18, 1.34];
@@ -1182,7 +1185,7 @@ export function createHomeCamera(root: HTMLElement, opts: HomeCameraOpts = {}): 
   /* ---------- resize + media-change relayout ---------- */
   const onResize = () => { if (built) placePanels(); };
   on(window, 'resize', onResize);
-  [mqReduce, mqCoarse, mqNarrow].forEach((mq) => {
+  [mqReduce, mqStack].forEach((mq) => {
     const h = () => { if (built) { cancelSnap(); placePanels(); } };
     if (mq.addEventListener) mq.addEventListener('change', h);
     cleanups.push(() => { if (mq.removeEventListener) mq.removeEventListener('change', h); });

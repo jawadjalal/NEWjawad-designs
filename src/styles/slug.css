@@ -115,7 +115,7 @@
 /* Phase 5b — mobile fallback (canvas.css does the panel reflow). Two slug-only
    fixes: the spatial "next panel" hint doesn't apply to a vertical stack, and
    the process thumbnails were sized to a now-collapsed 100%-height panel. */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   .canvas-page .sc-next {
     display: none;
   }

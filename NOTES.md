@@ -947,3 +947,67 @@ reads as the panel "coming into focus" and lands with the existing settle pose.
 `contain: paint` on panels was considered and rejected — the number badge
 overflows its panel and would be clipped. The nav pill's blur(14px) was kept:
 it's small, fixed, and part of the site's signature chrome.
+
+---
+
+## Responsive fix — touchscreen laptops were getting the phone stack
+
+**The bug.** Reported as "broken on small laptops — no intro animation, no
+side-scroll, looks like the mobile version." Root cause: the whole site decided
+desktop-vs-stacked from the **primary** pointer — `STACK_MQ` was
+`(max-width: 768px), (pointer: coarse)`, and the home camera's `spatial()` gate
+required `(pointer:fine)` as the primary. On touchscreen laptops and 2-in-1s
+(trackpad **and** touchscreen), many browsers — notably Windows/Chromium —
+report the *coarse* touch pointer as **primary**, so `(pointer: coarse)` matched
+and `(pointer: fine)` didn't. The site therefore dropped a perfectly capable
+laptop into the phone fallback: brand-loader intro suppressed, the side-scroll
+camera never wired, spatial canvases flattened to a vertical list.
+
+**The fix — key off `any-pointer`, not the primary pointer.** A laptop always
+has a precise, hover-capable pointer *available* (the trackpad), regardless of
+which pointer the OS calls "primary". So the new condition asks "is a fine
+pointer available?" via the Media Queries L4 `any-pointer`:
+
+```
+(max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine))
+```
+
+Stack only when the viewport is genuinely narrow **or** the device is
+*touch-only* (a coarse pointer with **no** fine pointer anywhere — a real phone
+or tablet). A touchscreen laptop has both `any-pointer: coarse` (screen) and
+`any-pointer: fine` (trackpad), so `(not (any-pointer: fine))` is false → it
+stays on the full desktop experience. The trailing `(any-pointer: coarse)` guard
+also means a browser with **no** pointer-media support at all falls through to
+the desktop default (safe — the old `(pointer: coarse)` had the same safe
+default).
+
+**Where it changed (one condition, everywhere):**
+- `motion.ts` `STACK_MQ` — the single source of truth (used by the spatial
+  engines + `useStackedBreakpoint`).
+- `home-camera.ts` — `spatial()` now returns `!matchMedia(STACK_MQ).matches`
+  (imported `STACK_MQ`), replacing the old `FINE && !coarse && !narrow`. The
+  live media-change relayout now listens on the single `mqStack` instead of the
+  separate coarse/narrow queries, so a real resize/relayout still adapts in place.
+- All 17 `@media` blocks across `globals.css` + the page stylesheets
+  (`home/contact/slug/process/canvas/work/about/trust`) were switched to the new
+  condition. `about.css`/`trust.css` also had a stray `760px` breakpoint (a
+  migration leftover) — folded into the unified `768px` while here.
+- `Cursor.tsx` — the custom cursor now enables on `(any-pointer: fine)` (was
+  primary `(pointer:fine)`), so touchscreen-laptop users get the desktop cursor
+  too. The native-cursor-hiding class is still only added inside that gate, so
+  touch-only devices are untouched.
+
+**Tradeoffs / boundaries.** Real phones and tablets (coarse, no fine pointer)
+still stack exactly as before — the fallback isn't removed, just no longer
+mis-triggered on laptops. A phone with a stylus/mouse attached that reports a
+fine pointer would now get the desktop canvas; acceptable (it can drive it), and
+narrow ones still stack on width. `(not (…))` parenthesised media syntax is
+Media Queries L4 (evergreen browsers only), consistent with the site's existing
+use of `backdrop-filter`/`:focus-visible`.
+
+**Verification.** `npm run build` + `npm run lint` clean. A headless-Chromium
+probe confirmed the query parses (no runtime error) and decides correctly:
+desktop/small-laptop → not stacked, phone → stacked, wide touch-only → stacked;
+and that `(not (any-pointer: fine))` negates to false when a fine pointer is
+present, proving the touchscreen-laptop (fine **+** coarse) branch resolves to
+the desktop experience.

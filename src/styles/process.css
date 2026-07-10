@@ -237,7 +237,7 @@
    wheel→horizontal + drag handlers). The per-step detail reuses
    the shared sc-* mobile fallback in canvas.css.
    ============================================================ */
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px), (any-pointer: coarse) and (not (any-pointer: fine)) {
   .canvas-page .proc-stage {
     position: static;
     inset: auto;
